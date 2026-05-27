@@ -60,6 +60,12 @@ export default function BookForm({ book, action }: BookFormProps) {
     ...Array(maxPractical - initPracticalEn.length).fill(''),
   ])
 
+  const initReflectionUa = book?.reflection_ua?.length ? book.reflection_ua : ['', '', '']
+  const initReflectionEn = book?.reflection_en?.length ? book.reflection_en : ['', '', '']
+  const maxReflection = Math.max(initReflectionUa.length, initReflectionEn.length)
+  const [reflectionUa, setReflectionUa] = useState<string[]>([...initReflectionUa, ...Array(maxReflection - initReflectionUa.length).fill('')])
+  const [reflectionEn, setReflectionEn] = useState<string[]>([...initReflectionEn, ...Array(maxReflection - initReflectionEn.length).fill('')])
+
   const initQuotesUa = book?.quotes_ua?.length ? book.quotes_ua : ['', '']
   const initQuotesEn = book?.quotes_en?.length ? book.quotes_en : ['', '']
   const maxQuotes = Math.max(initQuotesUa.length, initQuotesEn.length)
@@ -400,7 +406,67 @@ export default function BookForm({ book, action }: BookFormProps) {
         </button>
       </div>
 
-      {/* ── Section 5: Publish ── */}
+      {/* ── Section 6: Reflection Questions ── */}
+      <div className={sectionCls}>
+        <h2 className={sectionTitleCls}>Питання для рефлексії</h2>
+        {reflectionUa.map((_, idx) => (
+          <input key={`hru-${idx}`} type="hidden" name="reflection_ua" value={reflectionUa[idx]} />
+        ))}
+        {reflectionEn.map((_, idx) => (
+          <input key={`hre-${idx}`} type="hidden" name="reflection_en" value={reflectionEn[idx]} />
+        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p className="text-sm font-medium text-gray-600 mb-3">Питання (UA)</p>
+            <div className="space-y-3">
+              {reflectionUa.map((val, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <span className="text-xs text-gray-400 w-5 text-right shrink-0 mt-2">{idx + 1}.</span>
+                  <textarea
+                    rows={3}
+                    value={val}
+                    onChange={(e) => { const next = [...reflectionUa]; next[idx] = e.target.value; setReflectionUa(next) }}
+                    placeholder="Питання яке змушує читача думати..."
+                    className={`${inputCls} flex-1 resize-none`}
+                    style={{ minHeight: '80px' }}
+                  />
+                  <button type="button"
+                    onClick={() => { setReflectionUa(reflectionUa.filter((_, i) => i !== idx)); setReflectionEn(reflectionEn.filter((_, i) => i !== idx)) }}
+                    className="text-gray-300 hover:text-red-400 transition-colors text-xl leading-none px-1 shrink-0 mt-2">
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-600 mb-3">Questions (EN)</p>
+            <div className="space-y-3">
+              {reflectionEn.map((val, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <span className="text-xs text-gray-400 w-5 text-right shrink-0 mt-2">{idx + 1}.</span>
+                  <textarea
+                    rows={3}
+                    value={val}
+                    onChange={(e) => { const next = [...reflectionEn]; next[idx] = e.target.value; setReflectionEn(next) }}
+                    placeholder="A question that makes the reader think..."
+                    className={`${inputCls} flex-1 resize-none`}
+                    style={{ minHeight: '80px' }}
+                  />
+                  <span className="w-6 shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <button type="button"
+          onClick={() => { setReflectionUa([...reflectionUa, '']); setReflectionEn([...reflectionEn, '']) }}
+          className="mt-3 text-sm text-[#2D5016] hover:underline flex items-center gap-1">
+          <span className="text-lg leading-none">＋</span> Додати питання
+        </button>
+      </div>
+
+      {/* ── Section 7: Publish ── */}
       <div className={sectionCls}>
         <h2 className={sectionTitleCls}>Публікація</h2>
 

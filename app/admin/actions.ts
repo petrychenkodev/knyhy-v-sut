@@ -33,6 +33,8 @@ export async function createBook(formData: FormData) {
   const practicalEn = (formData.getAll('practical_en') as string[]).filter((s) => s.trim())
   const quotesUa = (formData.getAll('quotes_ua') as string[]).filter((s) => s.trim())
   const quotesEn = (formData.getAll('quotes_en') as string[]).filter((s) => s.trim())
+  const reflectionUa = (formData.getAll('reflection_ua') as string[]).filter((s) => s.trim())
+  const reflectionEn = (formData.getAll('reflection_en') as string[]).filter((s) => s.trim())
   const published = formData.get('published') === 'true'
 
   const { error } = await supabase.from('books').insert({
@@ -51,6 +53,8 @@ export async function createBook(formData: FormData) {
     practical_en: practicalEn,
     quotes_ua: quotesUa,
     quotes_en: quotesEn,
+    reflection_ua: reflectionUa,
+    reflection_en: reflectionEn,
     published,
   })
 
@@ -80,6 +84,8 @@ export async function updateBook(id: string, formData: FormData) {
   const practicalEn = (formData.getAll('practical_en') as string[]).filter((s) => s.trim())
   const quotesUa = (formData.getAll('quotes_ua') as string[]).filter((s) => s.trim())
   const quotesEn = (formData.getAll('quotes_en') as string[]).filter((s) => s.trim())
+  const reflectionUa = (formData.getAll('reflection_ua') as string[]).filter((s) => s.trim())
+  const reflectionEn = (formData.getAll('reflection_en') as string[]).filter((s) => s.trim())
   const published = formData.get('published') === 'true'
 
   const { error } = await supabase
@@ -100,6 +106,8 @@ export async function updateBook(id: string, formData: FormData) {
       practical_en: practicalEn,
       quotes_ua: quotesUa,
       quotes_en: quotesEn,
+      reflection_ua: reflectionUa,
+      reflection_en: reflectionEn,
       published,
     })
     .eq('id', id)

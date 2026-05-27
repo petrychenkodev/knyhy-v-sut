@@ -13,6 +13,8 @@ export type Book = {
   practical_en: string[]
   quotes_ua: string[]
   quotes_en: string[]
+  reflection_ua: string[]
+  reflection_en: string[]
   read_time_min: number
   slug: string
   published: boolean

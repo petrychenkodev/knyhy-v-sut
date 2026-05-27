@@ -100,6 +100,9 @@ export default async function BookPage({ params }: PageProps) {
   const quotes: string[] = locale === 'uk'
     ? (book.quotes_ua ?? [])
     : (book.quotes_en ?? [])
+  const reflection: string[] = locale === 'uk'
+    ? (book.reflection_ua ?? [])
+    : (book.reflection_en ?? [])
 
   // Related books
   const { data: relatedBooks } = await supabase
@@ -217,6 +220,30 @@ export default async function BookPage({ params }: PageProps) {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Reflection Questions */}
+      {reflection.filter(q => q.trim()).length > 0 && (
+        <div className="bg-[#2D5016] rounded-2xl p-8 md:p-12 mb-8">
+          <h2 className="font-playfair text-2xl font-semibold text-white mb-1">
+            {locale === 'uk' ? 'Запитай себе' : 'Ask Yourself'}
+          </h2>
+          <p className="text-white/70 text-sm mb-8">
+            {locale === 'uk' ? 'Питання для глибшого розуміння' : 'Questions for deeper understanding'}
+          </p>
+          <ol className="space-y-6">
+            {reflection.filter(q => q.trim()).map((question, idx) => (
+              <li key={idx} className="flex gap-5 items-start">
+                <span className="shrink-0 w-8 h-8 rounded-full bg-white/20 text-white text-sm font-semibold flex items-center justify-center">
+                  {idx + 1}
+                </span>
+                <p className="font-playfair text-lg italic text-white leading-relaxed pt-1">
+                  {question}
+                </p>
+              </li>
+            ))}
+          </ol>
         </div>
       )}
 
