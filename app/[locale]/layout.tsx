@@ -52,6 +52,9 @@ export const metadata: Metadata = {
       en: '/en',
     },
   },
+  verification: {
+    google: '5KcR6eyXM7JSwUtaS_cubVoAaFf8h7oK2RlPzbFodY4',
+  },
 }
 
 export default function LocaleLayout({
