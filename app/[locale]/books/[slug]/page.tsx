@@ -19,6 +19,50 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').slice(0, 160)
 }
 
+function insertQuotesIntoSummary(summaryHtml: string, quotes: string[]): string {
+  if (!quotes.length || !summaryHtml) return summaryHtml
+
+  const quoteBlock = (text: string) =>
+    `<blockquote class="inline-quote">${text}</blockquote>`
+
+  const sections = summaryHtml.split(/(?=<h2)/)
+
+  if (sections.length <= 1) {
+    // No h2 tags — insert at ~25%, 50%, 75% by character count
+    const len = summaryHtml.length
+    const points = [0.25, 0.5, 0.75]
+      .slice(0, quotes.length)
+      .map(p => Math.floor(len * p))
+
+    let result = summaryHtml
+    let offset = 0
+    points.forEach((pos, i) => {
+      // Find the next paragraph end after the target position
+      const adjusted = pos + offset
+      const nextClose = result.indexOf('</p>', adjusted)
+      if (nextClose === -1) return
+      const insertAt = nextClose + 4
+      const block = quoteBlock(quotes[i])
+      result = result.slice(0, insertAt) + block + result.slice(insertAt)
+      offset += block.length
+    })
+    return result
+  }
+
+  const result: string[] = []
+  let quoteIndex = 0
+
+  sections.forEach((section, i) => {
+    result.push(section)
+    if ((i + 1) % 2 === 0 && quoteIndex < quotes.length) {
+      result.push(quoteBlock(quotes[quoteIndex]))
+      quoteIndex++
+    }
+  })
+
+  return result.join('')
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const locale = (params.locale === 'en' ? 'en' : 'uk') as Locale
   const supabase = createAdminClient()
@@ -145,21 +189,7 @@ export default async function BookPage({ params }: PageProps) {
         <ReadTracker book={book} locale={locale} />
       </div>
 
-      {/* Quotes */}
-      {quotes.filter(q => q.trim()).length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6 space-y-4">
-          <h2 className="font-playfair text-xl font-semibold text-[#1A1A18] mb-4">
-            {locale === 'uk' ? 'Цитати з книги' : 'Quotes from the Book'}
-          </h2>
-          {quotes.filter(q => q.trim()).slice(0, 3).map((quote, idx) => (
-            <blockquote key={idx} className="border-l-[3px] border-[#2D5016] pl-5 py-3 pr-4 bg-[#f5f5f0] rounded-r-lg">
-              <p className="font-playfair text-lg italic text-gray-700 leading-relaxed">{quote}</p>
-            </blockquote>
-          ))}
-        </div>
-      )}
-
-      {/* Summary */}
+      {/* Summary with inline quotes */}
       {summary && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6">
           <div
@@ -170,11 +200,12 @@ export default async function BookPage({ params }: PageProps) {
               prose-p:leading-relaxed prose-p:mb-5 prose-p:text-gray-800
               prose-hr:my-8
               prose-strong:font-semibold prose-strong:text-gray-900
-              prose-blockquote:border-l-4 prose-blockquote:border-[#2D5016]
-              prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600
+              prose-blockquote:not-prose
               prose-ul:list-disc prose-ol:list-decimal
               prose-li:text-gray-800"
-            dangerouslySetInnerHTML={{ __html: summary }}
+            dangerouslySetInnerHTML={{
+              __html: insertQuotesIntoSummary(summary, quotes.filter(q => q.trim()).slice(0, 3)),
+            }}
           />
         </div>
       )}
