@@ -11,6 +11,8 @@ export type Book = {
   key_insights_en: string[]
   practical_ua: string[]
   practical_en: string[]
+  quotes_ua: string[]
+  quotes_en: string[]
   read_time_min: number
   slug: string
   published: boolean

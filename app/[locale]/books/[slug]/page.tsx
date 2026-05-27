@@ -7,6 +7,8 @@ import { Locale } from '@/lib/types'
 import { t } from '@/lib/i18n'
 import BookCoverHero from '@/components/BookCoverHero'
 import ReadTracker from '@/components/ReadTracker'
+import ReadingProgress from '@/components/ReadingProgress'
+import BookCard from '@/components/BookCard'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 
 interface PageProps {
@@ -95,6 +97,18 @@ export default async function BookPage({ params }: PageProps) {
   const practical: string[] = locale === 'uk'
     ? (book.practical_ua ?? [])
     : (book.practical_en ?? [])
+  const quotes: string[] = locale === 'uk'
+    ? (book.quotes_ua ?? [])
+    : (book.quotes_en ?? [])
+
+  // Related books
+  const { data: relatedBooks } = await supabase
+    .from('books')
+    .select('*')
+    .eq('published', true)
+    .eq('category', book.category)
+    .neq('slug', book.slug)
+    .limit(3)
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -109,6 +123,7 @@ export default async function BookPage({ params }: PageProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-24">
+      <ReadingProgress />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -126,6 +141,20 @@ export default async function BookPage({ params }: PageProps) {
       <div className="flex justify-end -mt-4 mb-4">
         <ReadTracker book={book} locale={locale} />
       </div>
+
+      {/* Quotes */}
+      {quotes.filter(q => q.trim()).length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6 space-y-4">
+          <h2 className="font-playfair text-xl font-semibold text-[#1A1A18] mb-4">
+            {locale === 'uk' ? 'Цитати з книги' : 'Quotes from the Book'}
+          </h2>
+          {quotes.filter(q => q.trim()).slice(0, 3).map((quote, idx) => (
+            <blockquote key={idx} className="border-l-[3px] border-[#2D5016] pl-5 py-3 pr-4 bg-[#f5f5f0] rounded-r-lg">
+              <p className="font-playfair text-lg italic text-gray-700 leading-relaxed">{quote}</p>
+            </blockquote>
+          ))}
+        </div>
+      )}
 
       {/* Summary */}
       {summary && (
@@ -188,6 +217,22 @@ export default async function BookPage({ params }: PageProps) {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Related Books */}
+      {relatedBooks && relatedBooks.length > 0 && (
+        <div className="pt-8 mt-4 border-t border-gray-100 mb-8">
+          <h2 className="font-playfair text-2xl font-semibold text-[#1A1A18] mb-6">
+            {locale === 'uk' ? 'Схожі книги' : 'Related Books'}
+          </h2>
+          <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 md:grid md:grid-cols-3 md:overflow-visible">
+            {relatedBooks.map((related) => (
+              <div key={related.id} className="shrink-0 w-[160px] md:w-auto">
+                <BookCard book={related} locale={locale} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

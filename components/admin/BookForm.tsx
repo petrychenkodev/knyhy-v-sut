@@ -60,6 +60,12 @@ export default function BookForm({ book, action }: BookFormProps) {
     ...Array(maxPractical - initPracticalEn.length).fill(''),
   ])
 
+  const initQuotesUa = book?.quotes_ua?.length ? book.quotes_ua : ['', '']
+  const initQuotesEn = book?.quotes_en?.length ? book.quotes_en : ['', '']
+  const maxQuotes = Math.max(initQuotesUa.length, initQuotesEn.length)
+  const [quotesUa, setQuotesUa] = useState<string[]>([...initQuotesUa, ...Array(maxQuotes - initQuotesUa.length).fill('')])
+  const [quotesEn, setQuotesEn] = useState<string[]>([...initQuotesEn, ...Array(maxQuotes - initQuotesEn.length).fill('')])
+
   const [summaryUa, setSummaryUa] = useState(book?.summary_ua ?? '')
   const [summaryEn, setSummaryEn] = useState(book?.summary_en ?? '')
   const [category, setCategory] = useState(book?.category ?? '')
@@ -197,7 +203,65 @@ export default function BookForm({ book, action }: BookFormProps) {
         </div>
       </div>
 
-      {/* ── Section 3: Key insights ── */}
+      {/* ── Section 3: Quotes ── */}
+      <div className={sectionCls}>
+        <h2 className={sectionTitleCls}>Цитати</h2>
+        {quotesUa.map((_, idx) => (
+          <input key={`hqu-${idx}`} type="hidden" name="quotes_ua" value={quotesUa[idx]} />
+        ))}
+        {quotesEn.map((_, idx) => (
+          <input key={`hqe-${idx}`} type="hidden" name="quotes_en" value={quotesEn[idx]} />
+        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p className="text-sm font-medium text-gray-600 mb-3">Цитати (UA)</p>
+            <div className="space-y-3">
+              {quotesUa.map((val, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <span className="text-xs text-gray-400 w-5 text-right shrink-0 mt-2">{idx + 1}.</span>
+                  <textarea
+                    rows={2}
+                    value={val}
+                    onChange={(e) => { const next = [...quotesUa]; next[idx] = e.target.value; setQuotesUa(next) }}
+                    placeholder="Введіть цитату з книги..."
+                    className={`${inputCls} flex-1 resize-none`}
+                  />
+                  <button type="button"
+                    onClick={() => { setQuotesUa(quotesUa.filter((_, i) => i !== idx)); setQuotesEn(quotesEn.filter((_, i) => i !== idx)) }}
+                    className="text-gray-300 hover:text-red-400 transition-colors text-xl leading-none px-1 shrink-0 mt-2">
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-600 mb-3">Quotes (EN)</p>
+            <div className="space-y-3">
+              {quotesEn.map((val, idx) => (
+                <div key={idx} className="flex gap-2 items-start">
+                  <span className="text-xs text-gray-400 w-5 text-right shrink-0 mt-2">{idx + 1}.</span>
+                  <textarea
+                    rows={2}
+                    value={val}
+                    onChange={(e) => { const next = [...quotesEn]; next[idx] = e.target.value; setQuotesEn(next) }}
+                    placeholder="Enter a quote from the book..."
+                    className={`${inputCls} flex-1 resize-none`}
+                  />
+                  <span className="w-6 shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <button type="button"
+          onClick={() => { setQuotesUa([...quotesUa, '']); setQuotesEn([...quotesEn, '']) }}
+          className="mt-3 text-sm text-[#2D5016] hover:underline flex items-center gap-1">
+          <span className="text-lg leading-none">＋</span> Додати цитату
+        </button>
+      </div>
+
+      {/* ── Section 5: Key insights ── */}
       <div className={sectionCls}>
         <h2 className={sectionTitleCls}>Ключові інсайти</h2>
         {insightsUa.map((_, idx) => (
