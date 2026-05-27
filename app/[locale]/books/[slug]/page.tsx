@@ -22,30 +22,38 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const supabase = createAdminClient()
   const { data: book } = await supabase
     .from('books')
-    .select('title_ua, title_en, summary_ua, summary_en, cover_url, slug')
+    .select('title_ua, title_en, summary_ua, summary_en, cover_url, slug, author')
     .eq('slug', params.slug)
     .single()
 
   if (!book) return {}
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://knyhy-v-sut.vercel.app'
   const title = locale === 'uk' ? book.title_ua : book.title_en
+  const author = book.author
   const summary = locale === 'uk' ? book.summary_ua : book.summary_en
   const description = stripHtml(summary || '')
 
   return {
-    title: `${title} — Книги в суть`,
+    title: `${title} — ${author} | Самарі`,
     description,
+    keywords: [
+      title, author,
+      `${title} самарі`, `${title} огляд`,
+      `${author} книги`, 'book summary',
+      `${title} summary`, `${title} review`,
+    ],
     openGraph: {
-      title,
+      title: `${title} — ${author}`,
       description,
-      images: book.cover_url ? [{ url: book.cover_url }] : [],
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/books/${book.slug}`,
+      type: 'article',
+      images: book.cover_url ? [{ url: book.cover_url, alt: title }] : [],
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/books/${book.slug}`,
+      canonical: `${baseUrl}/${locale}/books/${book.slug}`,
       languages: {
-        'uk': `${process.env.NEXT_PUBLIC_SITE_URL}/uk/books/${book.slug}`,
-        'en': `${process.env.NEXT_PUBLIC_SITE_URL}/en/books/${book.slug}`,
+        'uk': `${baseUrl}/uk/books/${book.slug}`,
+        'en': `${baseUrl}/en/books/${book.slug}`,
       },
     },
   }
@@ -79,6 +87,7 @@ export default async function BookPage({ params }: PageProps) {
 
   if (!book) notFound()
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://knyhy-v-sut.vercel.app'
   const summary = locale === 'uk' ? book.summary_ua : book.summary_en
   const insights: string[] = locale === 'uk'
     ? (book.key_insights_ua ?? [])
@@ -87,8 +96,23 @@ export default async function BookPage({ params }: PageProps) {
     ? (book.practical_ua ?? [])
     : (book.practical_en ?? [])
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    name: locale === 'uk' ? book.title_ua : book.title_en,
+    author: { '@type': 'Person', name: book.author },
+    description: (summary || '').replace(/<[^>]*>/g, '').slice(0, 300),
+    image: book.cover_url,
+    inLanguage: locale === 'uk' ? 'uk' : 'en',
+    url: `${baseUrl}/${locale}/books/${book.slug}`,
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* Back link */}
       <Link href={`/${locale}`}
