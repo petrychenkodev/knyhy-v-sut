@@ -3,10 +3,20 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export default async function AdminArticlesPage() {
   const supabase = createAdminClient()
-  const { data: articles } = await supabase
-    .from('articles')
-    .select('id, title_ua, title_en, slug, published, read_time_min, created_at')
-    .order('created_at', { ascending: false })
+  let articles: { id: string; title_ua: string; title_en: string; slug: string; published: boolean; read_time_min: number; created_at: string }[] = []
+  let fetchError: string | null = null
+
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('id, title_ua, title_en, slug, published, read_time_min, created_at')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    articles = data || []
+  } catch (e) {
+    console.error('Articles fetch error:', e)
+    fetchError = e instanceof Error ? e.message : 'Unknown error'
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -21,7 +31,15 @@ export default async function AdminArticlesPage() {
         </Link>
       </div>
 
-      {!articles || articles.length === 0 ? (
+      {fetchError ? (
+        <div className="text-center py-20 bg-red-50 rounded-2xl border border-red-200">
+          <p className="text-red-600 font-medium">Помилка завантаження статей</p>
+          <p className="text-red-400 text-sm mt-2 font-mono">{fetchError}</p>
+          <p className="text-gray-500 text-sm mt-4">
+            Переконайтеся що таблиця <code className="bg-gray-100 px-1 rounded">articles</code> створена в Supabase
+          </p>
+        </div>
+      ) : !articles || articles.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-200">
           <p className="text-gray-400">Статей ще немає</p>
           <Link href="/admin/articles/new" className="mt-4 inline-block text-sm text-[#2D5016] hover:underline">

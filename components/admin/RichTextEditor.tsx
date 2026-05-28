@@ -49,6 +49,8 @@ export default function RichTextEditor({ value, onChange, placeholder, compact =
         blockquote: compact ? false : {},
         bulletList: compact ? false : {},
         orderedList: compact ? false : {},
+        // Exclude underline from StarterKit — we register it explicitly below
+        underline: false,
       }),
       Underline,
       Placeholder.configure({
