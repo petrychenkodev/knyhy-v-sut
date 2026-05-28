@@ -29,14 +29,21 @@ body {
 .inline-quote {
   background: #f0f4ed;
   border-left: 4px solid #2D5016;
-  padding: 1.5rem;
-  margin: 2rem 0;
+  padding: 1.5rem 1.5rem 1.5rem 1.75rem;
+  margin: 2.5rem 0;
   border-radius: 0 12px 12px 0;
   font-family: 'Playfair Display', serif;
   font-style: italic;
   font-size: 1.125rem;
-  color: #2D5016;
   line-height: 1.7;
+  color: #2D5016;
+  clear: both;
+}
+
+li .inline-quote,
+ul .inline-quote,
+ol .inline-quote {
+  display: none;
 }
 
 .scrollbar-hide {

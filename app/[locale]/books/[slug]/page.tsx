@@ -25,40 +25,46 @@ function insertQuotesIntoSummary(summaryHtml: string, quotes: string[]): string 
   const quoteBlock = (text: string) =>
     `<blockquote class="inline-quote">${text}</blockquote>`
 
-  const sections = summaryHtml.split(/(?=<h2)/)
+  // Strategy 1: split by <hr> tags — cleanest section boundaries
+  const hasHr = /<hr\s*\/?>/i.test(summaryHtml)
 
-  if (sections.length <= 1) {
-    // No h2 tags — insert at ~25%, 50%, 75% by character count
-    const len = summaryHtml.length
-    const points = [0.25, 0.5, 0.75]
-      .slice(0, quotes.length)
-      .map(p => Math.floor(len * p))
+  if (hasHr) {
+    const parts = summaryHtml.split(/(<hr\s*\/?>)/i)
+    const result: string[] = []
+    let quoteIndex = 0
 
-    let result = summaryHtml
-    let offset = 0
-    points.forEach((pos, i) => {
-      // Find the next paragraph end after the target position
-      const adjusted = pos + offset
-      const nextClose = result.indexOf('</p>', adjusted)
-      if (nextClose === -1) return
-      const insertAt = nextClose + 4
-      const block = quoteBlock(quotes[i])
-      result = result.slice(0, insertAt) + block + result.slice(insertAt)
-      offset += block.length
-    })
-    return result
+    for (let i = 0; i < parts.length; i++) {
+      result.push(parts[i])
+      if (/<hr\s*\/?>/i.test(parts[i]) && quoteIndex < quotes.length) {
+        result.push(quoteBlock(quotes[quoteIndex]))
+        quoteIndex++
+      }
+    }
+    return result.join('')
   }
 
+  // Strategy 2: after </p> tags — but only when NOT followed by list or heading
+  const unsafeNext = /^\s*<(ul|ol|li|h2|h3)/i
+  const parts = summaryHtml.split(/(<\/p>)/i)
   const result: string[] = []
   let quoteIndex = 0
+  let pCount = 0
 
-  sections.forEach((section, i) => {
-    result.push(section)
-    if ((i + 1) % 2 === 0 && quoteIndex < quotes.length) {
-      result.push(quoteBlock(quotes[quoteIndex]))
-      quoteIndex++
+  for (let i = 0; i < parts.length; i++) {
+    result.push(parts[i])
+
+    if (/<\/p>/i.test(parts[i])) {
+      pCount++
+      const nextPart = parts[i + 1] ?? ''
+      const isSafe = !unsafeNext.test(nextPart.trimStart())
+
+      // Insert after every 3rd </p>, only in safe positions
+      if (pCount % 3 === 0 && isSafe && quoteIndex < quotes.length) {
+        result.push(quoteBlock(quotes[quoteIndex]))
+        quoteIndex++
+      }
     }
-  })
+  }
 
   return result.join('')
 }
