@@ -46,6 +46,11 @@ ol .inline-quote {
   display: none;
 }
 
+.upload-zone-active {
+  border-color: #2D5016 !important;
+  background-color: #f0f4ed !important;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

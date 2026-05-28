@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { Article } from '@/lib/types'
 import RichTextEditor from './RichTextEditor'
+import ImageUpload from './ImageUpload'
 
 function slugify(text: string): string {
   return text
@@ -26,6 +27,7 @@ const sectionTitleCls = 'text-base font-semibold text-gray-900 pb-1 border-b bor
 export default function ArticleForm({ article, action }: ArticleFormProps) {
   const [contentUa, setContentUa] = useState(article?.content_ua ?? '')
   const [contentEn, setContentEn] = useState(article?.content_en ?? '')
+  const [coverUrl, setCoverUrl] = useState<string | null>(article?.cover_url ?? null)
   const [published, setPublished] = useState(article?.published ?? false)
   const [slugValue, setSlugValue] = useState(article?.slug ?? '')
   const [slugTouched, setSlugTouched] = useState(!!article?.slug)
@@ -73,9 +75,14 @@ export default function ArticleForm({ article, action }: ArticleFormProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <label className={labelCls}>URL обкладинки</label>
-            <input name="cover_url" type="url" defaultValue={article?.cover_url ?? ''}
-              className={inputCls} placeholder="https://..." />
+            <label className={labelCls}>Обкладинка</label>
+            <input type="hidden" name="cover_url" value={coverUrl || ''} />
+            <ImageUpload
+              value={coverUrl}
+              onChange={setCoverUrl}
+              bucket="article-covers"
+              folder="articles"
+            />
           </div>
           <div>
             <label className={labelCls}>Час читання (хв)</label>

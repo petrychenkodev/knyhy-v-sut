@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import ImageUpload from './ImageUpload'
 import { Book } from '@/lib/types'
 import RichTextEditor from './RichTextEditor'
 
@@ -72,6 +73,7 @@ export default function BookForm({ book, action }: BookFormProps) {
   const [quotesUa, setQuotesUa] = useState<string[]>([...initQuotesUa, ...Array(maxQuotes - initQuotesUa.length).fill('')])
   const [quotesEn, setQuotesEn] = useState<string[]>([...initQuotesEn, ...Array(maxQuotes - initQuotesEn.length).fill('')])
 
+  const [coverUrl, setCoverUrl] = useState<string | null>(book?.cover_url ?? null)
   const [summaryUa, setSummaryUa] = useState(book?.summary_ua ?? '')
   const [summaryEn, setSummaryEn] = useState(book?.summary_en ?? '')
   const [category, setCategory] = useState(book?.category ?? '')
@@ -158,9 +160,14 @@ export default function BookForm({ book, action }: BookFormProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <label className={labelCls}>URL обкладинки</label>
-            <input name="cover_url" type="url" defaultValue={book?.cover_url ?? ''}
-              className={inputCls} placeholder="https://..." />
+            <label className={labelCls}>Обкладинка</label>
+            <input type="hidden" name="cover_url" value={coverUrl || ''} />
+            <ImageUpload
+              value={coverUrl}
+              onChange={setCoverUrl}
+              bucket="article-covers"
+              folder="books"
+            />
           </div>
           <div>
             <label className={labelCls}>Час читання (хв)</label>
