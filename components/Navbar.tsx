@@ -32,16 +32,16 @@ export default function Navbar({ locale }: NavbarProps) {
           </Link>
 
           {/* Desktop categories */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-8">
             <Link
               href={`/${locale}/catalog`}
-              className="text-sm text-gray-600 hover:text-[#2D5016] transition-colors font-medium"
+              className="text-base font-medium text-gray-700 hover:text-[#2D5016] transition-colors"
             >
               {locale === 'uk' ? 'Каталог' : 'Catalog'}
             </Link>
             <Link
               href={`/${locale}/articles`}
-              className="text-sm text-gray-600 hover:text-[#2D5016] transition-colors font-medium"
+              className="text-base font-medium text-gray-700 hover:text-[#2D5016] transition-colors"
             >
               {locale === 'uk' ? 'Статті' : 'Articles'}
             </Link>
@@ -49,10 +49,10 @@ export default function Navbar({ locale }: NavbarProps) {
 
           {/* Desktop right */}
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-1 text-sm font-medium">
-              <Link href={switchLocale('uk')} className={`px-2 py-1 rounded transition-colors ${locale === 'uk' ? 'text-[#2D5016] font-semibold' : 'text-gray-400 hover:text-gray-600'}`}>UA</Link>
+            <div className="flex items-center gap-1 text-sm">
+              <Link href={switchLocale('uk')} className={`px-2 py-1 rounded transition-colors ${locale === 'uk' ? 'text-gray-900 font-bold' : 'text-gray-400 font-medium hover:text-gray-600'}`}>UA</Link>
               <span className="text-gray-300">|</span>
-              <Link href={switchLocale('en')} className={`px-2 py-1 rounded transition-colors ${locale === 'en' ? 'text-[#2D5016] font-semibold' : 'text-gray-400 hover:text-gray-600'}`}>EN</Link>
+              <Link href={switchLocale('en')} className={`px-2 py-1 rounded transition-colors ${locale === 'en' ? 'text-gray-900 font-bold' : 'text-gray-400 font-medium hover:text-gray-600'}`}>EN</Link>
             </div>
           </div>
 
@@ -76,26 +76,26 @@ export default function Navbar({ locale }: NavbarProps) {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-gray-100 py-4 space-y-3">
+          <div className="md:hidden border-t border-gray-100 py-4 space-y-1">
             <Link
               href={`/${locale}/catalog`}
-              className="block px-2 py-2 text-sm text-gray-700 hover:text-[#2D5016] font-medium"
+              className="block px-2 py-3 text-lg font-medium text-gray-700 hover:text-[#2D5016] transition-colors"
               onClick={() => setMenuOpen(false)}
             >
               {locale === 'uk' ? 'Каталог' : 'Catalog'}
             </Link>
             <Link
               href={`/${locale}/articles`}
-              className="block px-2 py-2 text-sm text-gray-700 hover:text-[#2D5016] font-medium"
+              className="block px-2 py-3 text-lg font-medium text-gray-700 hover:text-[#2D5016] transition-colors"
               onClick={() => setMenuOpen(false)}
             >
               {locale === 'uk' ? 'Статті' : 'Articles'}
             </Link>
-            <div className="flex items-center gap-3 px-2 pt-2 border-t border-gray-100">
-              <div className="flex items-center gap-1 text-sm font-medium">
-                <Link href={switchLocale('uk')} className={locale === 'uk' ? 'text-[#2D5016] font-semibold' : 'text-gray-400'}>UA</Link>
+            <div className="flex items-center gap-3 px-2 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-1 text-sm">
+                <Link href={switchLocale('uk')} className={locale === 'uk' ? 'text-gray-900 font-bold' : 'text-gray-400 font-medium'}>UA</Link>
                 <span className="text-gray-300 mx-1">|</span>
-                <Link href={switchLocale('en')} className={locale === 'en' ? 'text-[#2D5016] font-semibold' : 'text-gray-400'}>EN</Link>
+                <Link href={switchLocale('en')} className={locale === 'en' ? 'text-gray-900 font-bold' : 'text-gray-400 font-medium'}>EN</Link>
               </div>
             </div>
           </div>
