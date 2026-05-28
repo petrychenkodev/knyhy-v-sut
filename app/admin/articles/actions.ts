@@ -23,7 +23,7 @@ export async function createArticle(formData: FormData) {
   if (!titleUa) throw new Error('title_ua is required')
   if (!titleEn) throw new Error('title_en is required')
 
-  const { error } = await supabase.from('articles').insert({
+  const article = {
     title_ua: titleUa,
     title_en: titleEn,
     slug: slugInput || slugify(titleEn),
@@ -34,9 +34,26 @@ export async function createArticle(formData: FormData) {
     cover_url: (formData.get('cover_url') as string) || null,
     read_time_min: parseInt(formData.get('read_time_min') as string) || 5,
     published: formData.get('published') === 'true',
+  }
+
+  console.log('[createArticle] Inserting:', {
+    ...article,
+    content_ua: article.content_ua.slice(0, 60),
+    content_en: article.content_en.slice(0, 60),
   })
 
-  if (error) throw new Error(error.message)
+  const { data, error } = await supabase
+    .from('articles')
+    .insert([article])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('[createArticle] Supabase error:', error)
+    throw new Error(`DB Error: ${error.message} (code: ${error.code})`)
+  }
+
+  console.log('[createArticle] Created:', data.id)
 
   revalidatePath('/', 'layout')
   redirect('/admin/articles')
@@ -52,23 +69,30 @@ export async function updateArticle(id: string, formData: FormData) {
   if (!titleUa) throw new Error('title_ua is required')
   if (!titleEn) throw new Error('title_en is required')
 
+  const update = {
+    title_ua: titleUa,
+    title_en: titleEn,
+    slug: slugInput || slugify(titleEn),
+    excerpt_ua: (formData.get('excerpt_ua') as string) || '',
+    excerpt_en: (formData.get('excerpt_en') as string) || '',
+    content_ua: (formData.get('content_ua') as string) || '',
+    content_en: (formData.get('content_en') as string) || '',
+    cover_url: (formData.get('cover_url') as string) || null,
+    read_time_min: parseInt(formData.get('read_time_min') as string) || 5,
+    published: formData.get('published') === 'true',
+  }
+
+  console.log('[updateArticle] Updating:', id)
+
   const { error } = await supabase
     .from('articles')
-    .update({
-      title_ua: titleUa,
-      title_en: titleEn,
-      slug: slugInput || slugify(titleEn),
-      excerpt_ua: (formData.get('excerpt_ua') as string) || '',
-      excerpt_en: (formData.get('excerpt_en') as string) || '',
-      content_ua: (formData.get('content_ua') as string) || '',
-      content_en: (formData.get('content_en') as string) || '',
-      cover_url: (formData.get('cover_url') as string) || null,
-      read_time_min: parseInt(formData.get('read_time_min') as string) || 5,
-      published: formData.get('published') === 'true',
-    })
+    .update(update)
     .eq('id', id)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    console.error('[updateArticle] Supabase error:', error)
+    throw new Error(`DB Error: ${error.message} (code: ${error.code})`)
+  }
 
   revalidatePath('/', 'layout')
   redirect('/admin/articles')
@@ -77,7 +101,10 @@ export async function updateArticle(id: string, formData: FormData) {
 export async function deleteArticle(id: string) {
   const supabase = createAdminClient()
   const { error } = await supabase.from('articles').delete().eq('id', id)
-  if (error) throw new Error(error.message)
+  if (error) {
+    console.error('[deleteArticle] Supabase error:', error)
+    throw new Error(error.message)
+  }
   revalidatePath('/', 'layout')
   redirect('/admin/articles')
 }
