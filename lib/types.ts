@@ -22,3 +22,18 @@ export type Book = {
 }
 
 export type Locale = 'uk' | 'en'
+
+export type Article = {
+  id: string
+  title_ua: string
+  title_en: string
+  slug: string
+  excerpt_ua: string
+  excerpt_en: string
+  content_ua: string
+  content_en: string
+  cover_url: string | null
+  read_time_min: number
+  published: boolean
+  created_at: string
+}

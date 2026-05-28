@@ -18,6 +18,16 @@ export default async function AdminPage() {
 
   return (
     <div>
+      {/* Navigation links */}
+      <div className="flex gap-4 mb-8">
+        <Link href="/admin" className="px-4 py-2 bg-[#2D5016] text-white text-sm font-medium rounded-lg">
+          Книги
+        </Link>
+        <Link href="/admin/articles" className="px-4 py-2 border border-[#2D5016] text-[#2D5016] text-sm font-medium rounded-lg hover:bg-[#2D5016]/5 transition-colors">
+          Статті
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>

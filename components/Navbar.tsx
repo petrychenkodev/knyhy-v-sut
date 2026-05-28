@@ -39,6 +39,12 @@ export default function Navbar({ locale }: NavbarProps) {
             >
               {locale === 'uk' ? 'Каталог' : 'Catalog'}
             </Link>
+            <Link
+              href={`/${locale}/articles`}
+              className="text-sm text-gray-600 hover:text-[#2D5016] transition-colors font-medium"
+            >
+              {locale === 'uk' ? 'Статті' : 'Articles'}
+            </Link>
           </div>
 
           {/* Desktop right */}
@@ -77,6 +83,13 @@ export default function Navbar({ locale }: NavbarProps) {
               onClick={() => setMenuOpen(false)}
             >
               {locale === 'uk' ? 'Каталог' : 'Catalog'}
+            </Link>
+            <Link
+              href={`/${locale}/articles`}
+              className="block px-2 py-2 text-sm text-gray-700 hover:text-[#2D5016] font-medium"
+              onClick={() => setMenuOpen(false)}
+            >
+              {locale === 'uk' ? 'Статті' : 'Articles'}
             </Link>
             <div className="flex items-center gap-3 px-2 pt-2 border-t border-gray-100">
               <div className="flex items-center gap-1 text-sm font-medium">

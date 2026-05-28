@@ -36,5 +36,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ])
 
-  return [...staticPages, ...bookPages]
+  const { data: articles } = await supabase
+    .from('articles')
+    .select('slug, created_at')
+    .eq('published', true)
+
+  const articlePages: MetadataRoute.Sitemap = (articles || []).flatMap((article) => [
+    {
+      url: `${baseUrl}/uk/articles/${article.slug}`,
+      lastModified: new Date(article.created_at),
+      changeFrequency: 'monthly' as const,
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/en/articles/${article.slug}`,
+      lastModified: new Date(article.created_at),
+      changeFrequency: 'monthly' as const,
+      priority: 0.85,
+    },
+  ])
+
+  return [...staticPages, ...bookPages, ...articlePages]
 }

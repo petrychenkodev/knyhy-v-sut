@@ -56,6 +56,10 @@ export const t = {
     practicalTitle:   'Що застосувати в житті',
     allBooks:         'Всі книги',
     nextBook:         'Наступна книга',
+    articles:         'Статті',
+    allArticles:      'Всі статті',
+    articlesSubtitle: 'Практичні ідеї для кращого життя',
+    relatedArticles:  'Схожі статті',
   },
   en: {
     heroTitle:      'Books to the Core',
@@ -93,6 +97,10 @@ export const t = {
     practicalTitle:   'What to Apply in Life',
     allBooks:         'All Books',
     nextBook:         'Next Book',
+    articles:         'Articles',
+    allArticles:      'All Articles',
+    articlesSubtitle: 'Practical ideas for a better life',
+    relatedArticles:  'Related Articles',
   },
 } as const
 
