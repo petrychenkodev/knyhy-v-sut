@@ -50,9 +50,17 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     }
 
     const rect = range.getBoundingClientRect()
+
+    // Clamp x so popup never overflows screen edges
+    const rawX = rect.left + rect.width / 2
+    const clampedX = Math.min(
+      window.innerWidth - 90,
+      Math.max(90, rawX)
+    )
+
     setPopup({
-      x: rect.left + rect.width / 2,
-      y: rect.top + window.scrollY,
+      x: clampedX,
+      y: rect.top - 8,   // viewport-relative; popup is position:fixed
       text,
     })
   }, [])
@@ -65,6 +73,13 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
       document.removeEventListener('touchend', handleSelection)
     }
   }, [handleSelection])
+
+  // Hide popup on scroll
+  useEffect(() => {
+    const hide = () => setPopup(null)
+    window.addEventListener('scroll', hide, { passive: true })
+    return () => window.removeEventListener('scroll', hide)
+  }, [])
 
   const handleSave = () => {
     if (!popup) return
@@ -89,11 +104,10 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
         <div
           style={{
             position: 'fixed',
-            left: popup.x,
-            top: popup.y,
+            left: `${popup.x}px`,
+            top: `${popup.y}px`,
             transform: 'translateX(-50%) translateY(-100%)',
-            zIndex: 1000,
-            marginTop: '-8px',
+            zIndex: 9999,
           }}
         >
           <div
