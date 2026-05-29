@@ -57,11 +57,11 @@ ol .inline-quote {
 }
 
 .highlightable-content ::selection {
-  background-color: #FFF176;
+  background-color: #FFE066;
   color: #1A1A18;
 }
 .highlightable-content ::-moz-selection {
-  background-color: #FFF176;
+  background-color: #FFE066;
   color: #1A1A18;
 }
 

@@ -12,16 +12,18 @@ interface Props {
   sourceSlug: string
 }
 
+type Direction = 'up' | 'down' | 'none'
+
 interface PopupState {
   x: number
   y: number
   text: string
-  direction: 'up' | 'down'
+  direction: Direction
   range: Range
 }
 
 export default function TextHighlighter({ children, sourceType, sourceTitle, sourceSlug }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const [popup, setPopup] = useState<PopupState | null>(null)
   const [toast, setToast] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -35,28 +37,53 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     const text = selection.toString().trim()
     if (text.length < 10 || text.length > 800) { setPopup(null); return }
 
-    if (!containerRef.current) return
     const range = selection.getRangeAt(0)
-    if (!containerRef.current.contains(range.commonAncestorContainer)) { setPopup(null); return }
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
+    if (!wrapper.contains(range.commonAncestorContainer)) { setPopup(null); return }
 
     const rect = range.getBoundingClientRect()
     const isMobile = window.innerWidth < 768
-    const clampX = (raw: number) => Math.min(window.innerWidth - 90, Math.max(90, raw))
-    const cx = clampX(rect.left + rect.width / 2)
+    const popupHeight = 44
+    const popupWidth = 160
+    const margin = 12
 
-    setPopup(isMobile
-      ? { x: cx, y: rect.bottom + 8, text, direction: 'down', range: range.cloneRange() }
-      : { x: cx, y: rect.top - 8,    text, direction: 'up',   range: range.cloneRange() }
+    const x = Math.min(
+      Math.max(popupWidth / 2 + margin, rect.left + rect.width / 2),
+      window.innerWidth - popupWidth / 2 - margin
     )
+
+    let y: number
+    let direction: Direction
+
+    if (isMobile) {
+      const spaceBelow = window.innerHeight - rect.bottom
+      const spaceAbove = rect.top
+
+      if (spaceBelow >= popupHeight + margin) {
+        y = rect.bottom + margin
+        direction = 'down'
+      } else if (spaceAbove >= popupHeight + margin) {
+        y = rect.top - margin
+        direction = 'up'
+      } else {
+        y = window.innerHeight / 2
+        direction = 'none'
+      }
+    } else {
+      y = rect.top - margin
+      direction = 'up'
+    }
+
+    setPopup({ x, y, text, direction, range: range.cloneRange() })
   }, [])
 
-  // Use capture phase so events bubble through nested elements (lists, etc.)
   useEffect(() => {
-    document.addEventListener('mouseup', handleSelection, true)
-    document.addEventListener('touchend', handleSelection, true)
+    document.addEventListener('mouseup', handleSelection)
+    document.addEventListener('touchend', handleSelection)
     return () => {
-      document.removeEventListener('mouseup', handleSelection, true)
-      document.removeEventListener('touchend', handleSelection, true)
+      document.removeEventListener('mouseup', handleSelection)
+      document.removeEventListener('touchend', handleSelection)
     }
   }, [handleSelection])
 
@@ -71,7 +98,6 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     if (!popup) return
     saveNote({ text: popup.text, comment: '', sourceType, sourceTitle, sourceSlug })
 
-    // Visual highlight in DOM (resets on reload)
     try {
       const highlightSpan = document.createElement('span')
       highlightSpan.className = 'saved-highlight'
@@ -89,18 +115,13 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     setTimeout(() => setToast(false), 2000)
   }
 
-  const arrowUp = (
-    <div style={{
-      position: 'absolute', top: '-6px', left: '50%',
-      transform: 'translateX(-50%)',
-      width: 0, height: 0,
-      borderLeft: '7px solid transparent',
-      borderRight: '7px solid transparent',
-      borderBottom: '7px solid #1A1A18',
-    }} />
-  )
+  const getTransform = (direction: Direction) => {
+    if (direction === 'up')   return 'translateX(-50%) translateY(-100%)'
+    if (direction === 'down') return 'translateX(-50%)'
+    return 'translateX(-50%) translateY(-50%)'
+  }
 
-  const arrowDown = (
+  const arrowUp = (
     <div style={{
       position: 'absolute', bottom: '-6px', left: '50%',
       transform: 'translateX(-50%)',
@@ -111,8 +132,19 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     }} />
   )
 
+  const arrowDown = (
+    <div style={{
+      position: 'absolute', top: '-6px', left: '50%',
+      transform: 'translateX(-50%)',
+      width: 0, height: 0,
+      borderLeft: '7px solid transparent',
+      borderRight: '7px solid transparent',
+      borderBottom: '7px solid #1A1A18',
+    }} />
+  )
+
   return (
-    <div ref={containerRef} className="highlightable-content">
+    <div ref={wrapperRef} className="highlightable-content">
       {children}
 
       {mounted && popup && createPortal(
@@ -120,12 +152,10 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
           position: 'fixed',
           left: `${popup.x}px`,
           top: `${popup.y}px`,
-          transform: popup.direction === 'up'
-            ? 'translateX(-50%) translateY(-100%)'
-            : 'translateX(-50%)',
+          transform: getTransform(popup.direction),
           zIndex: 9999,
         }}>
-          {popup.direction === 'down' && arrowUp}
+          {popup.direction === 'down' && arrowDown}
           <div
             className="flex items-center gap-2 bg-[#1A1A18] rounded-lg px-3 py-2 shadow-lg cursor-pointer select-none"
             onClick={handleSave}
@@ -139,7 +169,7 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
               onClick={(e) => { e.stopPropagation(); setPopup(null) }}
             />
           </div>
-          {popup.direction === 'up' && arrowDown}
+          {popup.direction === 'up' && arrowUp}
         </div>,
         document.body
       )}
