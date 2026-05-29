@@ -1,17 +1,27 @@
 import { createClient } from '@/lib/supabase/server'
 import { t } from '@/lib/i18n'
 import BookGrid from '@/components/BookGrid'
+import ArticleCard from '@/components/ArticleCard'
+import BookCardSkeleton from '@/components/BookCardSkeleton'
 import Link from 'next/link'
 
 export default async function HomePage() {
   const supabase = createClient()
 
-  const { data: books } = await supabase
-    .from('books')
-    .select('*')
-    .eq('published', true)
-    .order('created_at', { ascending: false })
-    .limit(8)
+  const [{ data: books }, { data: articles }] = await Promise.all([
+    supabase
+      .from('books')
+      .select('*')
+      .eq('published', true)
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase
+      .from('articles')
+      .select('*')
+      .eq('published', true)
+      .order('created_at', { ascending: false })
+      .limit(3),
+  ])
 
   return (
     <>
@@ -37,12 +47,42 @@ export default async function HomePage() {
       </section>
 
       {/* Recent books */}
-      <section id="catalog" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <h2 className="font-playfair text-2xl md:text-3xl font-semibold text-[#1A1A18] mb-8">
-          {t.recentlyAdded}
-        </h2>
-        <BookGrid books={books ?? []} />
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#1A1A18]">
+            Останні книги
+          </h2>
+          <Link href="/catalog" className="text-sm text-[#2D5016] hover:underline font-medium">
+            Переглянути всі →
+          </Link>
+        </div>
+        {books && books.length > 0 ? (
+          <BookGrid books={books} />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => <BookCardSkeleton key={i} />)}
+          </div>
+        )}
       </section>
+
+      {/* Recent articles */}
+      {articles && articles.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 pb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#1A1A18]">
+              Останні статті
+            </h2>
+            <Link href="/articles" className="text-sm text-[#2D5016] hover:underline font-medium">
+              Переглянути всі →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {articles.map((article) => (
+              <ArticleCard key={article.id} article={article} />
+            ))}
+          </div>
+        </section>
+      )}
     </>
   )
 }
