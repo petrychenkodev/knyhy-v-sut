@@ -75,20 +75,34 @@ export default function RootLayout({
 }) {
   return (
     <html lang="uk">
-      <body className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}>
-        <div className="min-h-screen bg-[#FAFAF8]">
-          <Navbar />
-          <main>
-            {children}
-            {/* Spacer so content isn't hidden behind mobile bottom nav */}
-            <div
-              className="md:hidden"
-              style={{ height: 'calc(56px + env(safe-area-inset-bottom))' }}
-            />
-          </main>
-          <MobileBottomNav />
-        </div>
+      <body
+        className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100dvh',
+          margin: 0,
+          padding: 0,
+          backgroundColor: '#FAFAF8',
+        }}
+      >
         <Analytics />
+
+        {/* Scrollable content area */}
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <Navbar />
+          <main>{children}</main>
+        </div>
+
+        {/* Bottom nav — in flex flow, always anchored to bottom */}
+        <MobileBottomNav />
       </body>
     </html>
   )
