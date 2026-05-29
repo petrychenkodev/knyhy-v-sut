@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { Book } from '@/lib/types'
 import { getFavorites, getSavedArticles, getHistory, getReadBooks, getFirstVisit } from '@/lib/favorites'
 import BookCard from '@/components/BookCard'
-import { BookMarked, CheckCircle, Eye, Clock, User } from 'lucide-react'
+import { BookMarked, CheckCircle, Eye, Clock, User, FileText } from 'lucide-react'
+import { getNotes } from '@/lib/notes'
 
 function getMotivation(count: number): string {
   if (count <= 3) return 'Гарний початок!'
@@ -25,6 +26,7 @@ export default function ProfilePage() {
   const [editingGoal, setEditingGoal] = useState(false)
   const [goalInput, setGoalInput] = useState('12')
   const [showConfirm, setShowConfirm] = useState(false)
+  const [notesCount, setNotesCount] = useState(0)
 
   useEffect(() => {
     setMounted(true)
@@ -36,6 +38,7 @@ export default function ProfilePage() {
     const savedGoal = parseInt(localStorage.getItem('reading_goal') || '12', 10)
     setGoal(savedGoal)
     setGoalInput(String(savedGoal))
+    setNotesCount(getNotes().length)
   }, [])
 
   const saveGoal = () => {
@@ -85,10 +88,10 @@ export default function ProfilePage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         {[
-          { icon: <BookMarked size={22} strokeWidth={1.5} />, value: favorites.length + savedArticlesCount, label: 'Збережено' },
-          { icon: <CheckCircle size={22} strokeWidth={1.5} />, value: readIds.length, label: 'Прочитано' },
-          { icon: <Eye size={22} strokeWidth={1.5} />, value: history.length, label: 'Переглянуто' },
-          { icon: <Clock size={22} strokeWidth={1.5} />, value: totalMinutes, label: 'Хвилин' },
+          { icon: <BookMarked size={22} strokeWidth={1.5} />, value: favorites.length + savedArticlesCount, label: 'Збережено', href: undefined },
+          { icon: <CheckCircle size={22} strokeWidth={1.5} />, value: readIds.length, label: 'Прочитано', href: undefined },
+          { icon: <Eye size={22} strokeWidth={1.5} />, value: history.length, label: 'Переглянуто', href: undefined },
+          { icon: <Clock size={22} strokeWidth={1.5} />, value: totalMinutes, label: 'Хвилин', href: undefined },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col items-center gap-2">
             <span className="text-[#2D5016]">{stat.icon}</span>
@@ -97,6 +100,18 @@ export default function ProfilePage() {
           </div>
         ))}
       </div>
+
+      {/* Notes stat card */}
+      <Link href="/notes" className="block mb-10">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:border-[#2D5016]/30 transition-colors">
+          <span className="text-[#2D5016]"><FileText size={24} strokeWidth={1.5} /></span>
+          <div className="flex-1">
+            <span className="font-playfair text-2xl font-bold text-[#1A1A18]">{notesCount}</span>
+            <span className="text-xs text-gray-500 ml-2">Нотаток</span>
+          </div>
+          <span className="text-sm text-[#2D5016] font-medium">Мої нотатки →</span>
+        </div>
+      </Link>
 
       {/* Recently Viewed */}
       <section className="mb-10">

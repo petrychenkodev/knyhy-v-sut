@@ -9,6 +9,7 @@ import ReadingProgress from '@/components/ReadingProgress'
 import ArticleCard from '@/components/ArticleCard'
 import ArticleBookmarkButton from '@/components/ArticleBookmarkButton'
 import { ArrowLeft, Clock } from 'lucide-react'
+import TextHighlighter from '@/components/TextHighlighter'
 
 interface PageProps {
   params: { slug: string }
@@ -115,20 +116,22 @@ export default async function ArticlePage({ params }: PageProps) {
         </div>
 
         {/* Content */}
-        <div
-          className="prose prose-lg max-w-none
-            prose-headings:font-playfair
-            prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-[#1A1A18]
-            prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-[#1A1A18]
-            prose-p:leading-relaxed prose-p:mb-5 prose-p:text-gray-800
-            prose-hr:my-8
-            prose-strong:font-semibold prose-strong:text-gray-900
-            prose-blockquote:border-l-4 prose-blockquote:border-[#2D5016]
-            prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600
-            prose-ul:list-disc prose-ol:list-decimal
-            prose-li:text-gray-800"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+        <TextHighlighter sourceType="article" sourceTitle={article.title_ua} sourceSlug={article.slug}>
+          <div
+            className="prose prose-lg max-w-none
+              prose-headings:font-playfair
+              prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-[#1A1A18]
+              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-[#1A1A18]
+              prose-p:leading-relaxed prose-p:mb-5 prose-p:text-gray-800
+              prose-hr:my-8
+              prose-strong:font-semibold prose-strong:text-gray-900
+              prose-blockquote:border-l-4 prose-blockquote:border-[#2D5016]
+              prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600
+              prose-ul:list-disc prose-ol:list-decimal
+              prose-li:text-gray-800"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        </TextHighlighter>
 
         {/* Back link bottom */}
         <div className="mt-12 pt-8 border-t border-gray-100">

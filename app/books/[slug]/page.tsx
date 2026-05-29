@@ -9,6 +9,7 @@ import ReadTracker from '@/components/ReadTracker'
 import ReadingProgress from '@/components/ReadingProgress'
 import BookCard from '@/components/BookCard'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import TextHighlighter from '@/components/TextHighlighter'
 
 interface PageProps {
   params: { slug: string }
@@ -171,23 +172,25 @@ export default async function BookPage({ params }: PageProps) {
 
       {/* Summary with inline quotes */}
       {summary && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6">
-          <div
-            className="prose prose-lg max-w-none
-              prose-headings:font-playfair
-              prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-[#1A1A18]
-              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-[#1A1A18]
-              prose-p:leading-relaxed prose-p:mb-5 prose-p:text-gray-800
-              prose-hr:my-8
-              prose-strong:font-semibold prose-strong:text-gray-900
-              prose-blockquote:not-prose
-              prose-ul:list-disc prose-ol:list-decimal
-              prose-li:text-gray-800"
-            dangerouslySetInnerHTML={{
-              __html: insertQuotesIntoSummary(summary, quotes.filter(q => q.trim()).slice(0, 3)),
-            }}
-          />
-        </div>
+        <TextHighlighter sourceType="book" sourceTitle={book.title_ua} sourceSlug={book.slug}>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6">
+            <div
+              className="prose prose-lg max-w-none
+                prose-headings:font-playfair
+                prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-[#1A1A18]
+                prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-[#1A1A18]
+                prose-p:leading-relaxed prose-p:mb-5 prose-p:text-gray-800
+                prose-hr:my-8
+                prose-strong:font-semibold prose-strong:text-gray-900
+                prose-blockquote:not-prose
+                prose-ul:list-disc prose-ol:list-decimal
+                prose-li:text-gray-800"
+              dangerouslySetInnerHTML={{
+                __html: insertQuotesIntoSummary(summary, quotes.filter(q => q.trim()).slice(0, 3)),
+              }}
+            />
+          </div>
+        </TextHighlighter>
       )}
 
       {/* Key Insights */}
