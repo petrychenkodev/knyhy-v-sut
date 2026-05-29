@@ -2,12 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Home, BookOpen, Newspaper, BookMarked, User } from 'lucide-react'
-
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const pathname = usePathname()
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-100">
