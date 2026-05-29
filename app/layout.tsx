@@ -78,7 +78,12 @@ export default function RootLayout({
       <body className={`${playfair.variable} ${dmSans.variable} font-sans antialiased bg-[#FAFAF8]`}>
         <Analytics />
         <Navbar />
-        <main>{children}</main>
+        <main
+          className="md:pb-0"
+          style={{ paddingBottom: 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
+        >
+          {children}
+        </main>
         <MobileBottomNav />
       </body>
     </html>

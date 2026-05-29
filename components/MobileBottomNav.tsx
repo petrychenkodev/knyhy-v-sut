@@ -29,8 +29,7 @@ export default function MobileBottomNav() {
   }
 
   return (
-    <>
-      <nav
+    <nav
         className="md:hidden"
         style={{
           position: 'fixed',
@@ -90,13 +89,6 @@ export default function MobileBottomNav() {
             )
           })}
         </div>
-      </nav>
-
-      {/* Spacer — pushes content above the fixed nav */}
-      <div
-        className="md:hidden"
-        style={{ height: 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
-      />
-    </>
+    </nav>
   )
 }
