@@ -73,29 +73,31 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* Mobile bottom nav */}
+      {/* Mobile bottom nav — 5 items */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 shadow-lg">
-        <div className="flex h-16">
-          {[
-            { href: '/', icon: <Home size={20} strokeWidth={1.5} />, label: 'Головна' },
-            { href: '/catalog', icon: <BookOpen size={20} strokeWidth={1.5} />, label: 'Книги' },
-            { href: '/articles', icon: <Newspaper size={20} strokeWidth={1.5} />, label: 'Статті' },
-            { href: '/saved', icon: <BookMarked size={20} strokeWidth={1.5} />, label: 'Збережене' },
-            { href: '/profile', icon: <User size={20} strokeWidth={1.5} />, label: 'Профіль' },
-          ].map((item) => {
+        <div className="flex h-16 w-full">
+          {(
+            [
+              { href: '/',         icon: <Home      size={20} strokeWidth={1.5} />, label: 'Головна'   },
+              { href: '/catalog',  icon: <BookOpen  size={20} strokeWidth={1.5} />, label: 'Книги'     },
+              { href: '/articles', icon: <Newspaper size={20} strokeWidth={1.5} />, label: 'Статті'    },
+              { href: '/saved',    icon: <BookMarked size={20} strokeWidth={1.5} />, label: 'Збережене' },
+              { href: '/profile',  icon: <User      size={20} strokeWidth={1.5} />, label: 'Профіль'   },
+            ] as const
+          ).map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 font-medium transition-colors ${
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors ${
                   isActive ? 'text-[#2D5016]' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                <span className={`flex items-center justify-center rounded-lg px-1 py-0.5 transition-colors ${isActive ? 'bg-[#2D5016]/[0.08]' : ''}`}>
+                <span className={`flex items-center justify-center rounded-lg px-1 py-0.5 ${isActive ? 'bg-[#2D5016]/[0.08]' : ''}`}>
                   {item.icon}
                 </span>
-                <span className="text-[10px]">{item.label}</span>
+                <span className="text-[10px] font-medium">{item.label}</span>
               </Link>
             )
           })}
