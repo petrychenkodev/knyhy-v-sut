@@ -17,6 +17,7 @@ interface PopupState {
   y: number
   text: string
   direction: 'up' | 'down'
+  range: Range
 }
 
 export default function TextHighlighter({ children, sourceType, sourceTitle, sourceSlug }: Props) {
@@ -32,7 +33,7 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     if (!selection || selection.isCollapsed) { setPopup(null); return }
 
     const text = selection.toString().trim()
-    if (text.length < 10 || text.length > 500) { setPopup(null); return }
+    if (text.length < 10 || text.length > 800) { setPopup(null); return }
 
     if (!containerRef.current) return
     const range = selection.getRangeAt(0)
@@ -40,36 +41,50 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
 
     const rect = range.getBoundingClientRect()
     const isMobile = window.innerWidth < 768
-    const clampX = (raw: number) =>
-      Math.min(window.innerWidth - 90, Math.max(90, raw))
+    const clampX = (raw: number) => Math.min(window.innerWidth - 90, Math.max(90, raw))
     const cx = clampX(rect.left + rect.width / 2)
 
     setPopup(isMobile
-      ? { x: cx, y: rect.bottom + 8, text, direction: 'down' }
-      : { x: cx, y: rect.top - 8,    text, direction: 'up'   }
+      ? { x: cx, y: rect.bottom + 8, text, direction: 'down', range: range.cloneRange() }
+      : { x: cx, y: rect.top - 8,    text, direction: 'up',   range: range.cloneRange() }
     )
   }, [])
 
+  // Use capture phase so events bubble through nested elements (lists, etc.)
   useEffect(() => {
-    document.addEventListener('mouseup', handleSelection)
-    document.addEventListener('touchend', handleSelection)
+    document.addEventListener('mouseup', handleSelection, true)
+    document.addEventListener('touchend', handleSelection, true)
     return () => {
-      document.removeEventListener('mouseup', handleSelection)
-      document.removeEventListener('touchend', handleSelection)
+      document.removeEventListener('mouseup', handleSelection, true)
+      document.removeEventListener('touchend', handleSelection, true)
     }
   }, [handleSelection])
 
   useEffect(() => {
     const hide = () => setPopup(null)
-    window.addEventListener('scroll', hide, { passive: true })
-    return () => window.removeEventListener('scroll', hide)
+    const scrollEl = document.getElementById('scroll-container') ?? window
+    scrollEl.addEventListener('scroll', hide, { passive: true })
+    return () => scrollEl.removeEventListener('scroll', hide)
   }, [])
 
   const handleSave = () => {
     if (!popup) return
     saveNote({ text: popup.text, comment: '', sourceType, sourceTitle, sourceSlug })
-    setPopup(null)
+
+    // Visual highlight in DOM (resets on reload)
+    try {
+      const highlightSpan = document.createElement('span')
+      highlightSpan.className = 'saved-highlight'
+      highlightSpan.style.backgroundColor = '#FFF9C4'
+      highlightSpan.style.borderRadius = '2px'
+      highlightSpan.style.padding = '0 1px'
+      popup.range.surroundContents(highlightSpan)
+    } catch {
+      // surroundContents fails across element boundaries — ignore
+    }
+
     window.getSelection()?.removeAllRanges()
+    setPopup(null)
     setToast(true)
     setTimeout(() => setToast(false), 2000)
   }
@@ -97,7 +112,7 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
   )
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="highlightable-content">
       {children}
 
       {mounted && popup && createPortal(

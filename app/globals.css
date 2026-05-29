@@ -56,6 +56,15 @@ ol .inline-quote {
   background-color: #f0f4ed !important;
 }
 
+.highlightable-content ::selection {
+  background-color: #FFF176;
+  color: #1A1A18;
+}
+.highlightable-content ::-moz-selection {
+  background-color: #FFF176;
+  color: #1A1A18;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

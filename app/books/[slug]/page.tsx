@@ -171,11 +171,11 @@ export default async function BookPage({ params }: PageProps) {
         <ReadTracker book={book} />
       </div>
 
+      <NotesBanner />
+      <TextHighlighter sourceType="book" sourceTitle={book.title_ua} sourceSlug={book.slug}>
+
       {/* Summary with inline quotes */}
       {summary && (
-        <>
-        <NotesBanner />
-        <TextHighlighter sourceType="book" sourceTitle={book.title_ua} sourceSlug={book.slug}>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6">
             <div
               className="prose prose-lg max-w-none
@@ -193,8 +193,6 @@ export default async function BookPage({ params }: PageProps) {
               }}
             />
           </div>
-        </TextHighlighter>
-        </>
       )}
 
       {/* Key Insights */}
@@ -294,6 +292,7 @@ export default async function BookPage({ params }: PageProps) {
         </span>
       </div>
 
+      </TextHighlighter>
     </div>
   )
 }
