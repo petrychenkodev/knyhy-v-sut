@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Bookmark } from 'lucide-react'
 import { Article } from '@/lib/types'
+import { isArticleSaved, toggleArticle } from '@/lib/favorites'
 
 interface ArticleCardProps {
   article: Article
@@ -11,11 +13,23 @@ interface ArticleCardProps {
 
 export default function ArticleCard({ article }: ArticleCardProps) {
   const [imgError, setImgError] = useState(false)
+  const [saved, setSaved] = useState(false)
   const title = article.title_ua
   const excerpt = article.excerpt_ua
   const date = new Date(article.created_at).toLocaleDateString('uk-UA', {
     day: 'numeric', month: 'long', year: 'numeric',
   })
+
+  useEffect(() => {
+    setSaved(isArticleSaved(article.id))
+  }, [article.id])
+
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const next = toggleArticle(article)
+    setSaved(next)
+  }
 
   return (
     <Link href={`/articles/${article.slug}`} className="group block">
@@ -46,6 +60,19 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-full">
             {article.read_time_min} хв
           </div>
+
+          {/* Bookmark button */}
+          <button
+            onClick={handleBookmark}
+            className={`absolute top-2 right-2 p-1.5 rounded-full transition-all
+              ${saved
+                ? 'bg-[#2D5016] text-white'
+                : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/60'
+              }`}
+            aria-label={saved ? 'Видалити зі збережених' : 'Зберегти статтю'}
+          >
+            <Bookmark size={14} strokeWidth={1.5} fill={saved ? 'currentColor' : 'none'} />
+          </button>
         </div>
 
         {/* Info */}

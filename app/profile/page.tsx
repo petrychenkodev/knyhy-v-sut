@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Book } from '@/lib/types'
-import { getFavorites, getHistory, getReadBooks, getFirstVisit } from '@/lib/favorites'
+import { getFavorites, getSavedArticles, getHistory, getReadBooks, getFirstVisit } from '@/lib/favorites'
 import BookCard from '@/components/BookCard'
 import { BookMarked, CheckCircle, Eye, Clock, User } from 'lucide-react'
 
@@ -17,6 +17,7 @@ function getMotivation(count: number): string {
 export default function ProfilePage() {
   const [mounted, setMounted] = useState(false)
   const [favorites, setFavorites] = useState<Book[]>([])
+  const [savedArticlesCount, setSavedArticlesCount] = useState(0)
   const [history, setHistory] = useState<Book[]>([])
   const [readIds, setReadIds] = useState<string[]>([])
   const [firstVisit, setFirstVisit] = useState<string>('')
@@ -28,6 +29,7 @@ export default function ProfilePage() {
   useEffect(() => {
     setMounted(true)
     setFavorites(getFavorites())
+    setSavedArticlesCount(getSavedArticles().length)
     setHistory(getHistory())
     setReadIds(getReadBooks())
     setFirstVisit(getFirstVisit())
@@ -83,7 +85,7 @@ export default function ProfilePage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         {[
-          { icon: <BookMarked size={22} strokeWidth={1.5} />, value: favorites.length, label: 'Збережено' },
+          { icon: <BookMarked size={22} strokeWidth={1.5} />, value: favorites.length + savedArticlesCount, label: 'Збережено' },
           { icon: <CheckCircle size={22} strokeWidth={1.5} />, value: readIds.length, label: 'Прочитано' },
           { icon: <Eye size={22} strokeWidth={1.5} />, value: history.length, label: 'Переглянуто' },
           { icon: <Clock size={22} strokeWidth={1.5} />, value: totalMinutes, label: 'Хвилин' },

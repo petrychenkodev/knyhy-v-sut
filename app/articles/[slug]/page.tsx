@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { t } from '@/lib/i18n'
 import ReadingProgress from '@/components/ReadingProgress'
 import ArticleCard from '@/components/ArticleCard'
+import ArticleBookmarkButton from '@/components/ArticleBookmarkButton'
 import { ArrowLeft, Clock } from 'lucide-react'
 
 interface PageProps {
@@ -102,12 +103,15 @@ export default async function ArticlePage({ params }: PageProps) {
         </h1>
 
         {/* Meta */}
-        <div className="flex items-center gap-4 text-sm text-gray-400 mb-10 pb-6 border-b border-gray-100">
-          <span>{date}</span>
-          <span className="flex items-center gap-1.5">
-            <Clock size={14} strokeWidth={1.5} />
-            {article.read_time_min} хв читання
-          </span>
+        <div className="flex items-center justify-between gap-4 mb-10 pb-6 border-b border-gray-100">
+          <div className="flex items-center gap-4 text-sm text-gray-400">
+            <span>{date}</span>
+            <span className="flex items-center gap-1.5">
+              <Clock size={14} strokeWidth={1.5} />
+              {article.read_time_min} хв читання
+            </span>
+          </div>
+          <ArticleBookmarkButton article={article} />
         </div>
 
         {/* Content */}

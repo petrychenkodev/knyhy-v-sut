@@ -1,4 +1,4 @@
-import { Book } from './types'
+import { Book, Article } from './types'
 
 const STORAGE_KEY = 'knyhy_favorites'
 
@@ -76,4 +76,35 @@ export const getFirstVisit = (): string => {
   const now = new Date().toISOString()
   localStorage.setItem('first_visit', now)
   return now
+}
+
+// Article favorites
+export const getSavedArticles = (): Article[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(localStorage.getItem('saved_articles') || '[]')
+  } catch { return [] }
+}
+
+export const saveArticle = (article: Article): void => {
+  const saved = getSavedArticles().filter(a => a.id !== article.id)
+  localStorage.setItem('saved_articles', JSON.stringify([article, ...saved]))
+}
+
+export const removeArticle = (id: string): void => {
+  localStorage.setItem('saved_articles', JSON.stringify(getSavedArticles().filter(a => a.id !== id)))
+}
+
+export const isArticleSaved = (id: string): boolean => {
+  return getSavedArticles().some(a => a.id === id)
+}
+
+export const toggleArticle = (article: Article): boolean => {
+  if (isArticleSaved(article.id)) {
+    removeArticle(article.id)
+    return false
+  } else {
+    saveArticle(article)
+    return true
+  }
 }
