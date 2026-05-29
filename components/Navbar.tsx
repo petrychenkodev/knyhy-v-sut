@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, LayoutGrid, BookMarked, User, Newspaper } from 'lucide-react'
+import { Home, BookOpen, Newspaper, BookMarked, User } from 'lucide-react'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -18,13 +18,13 @@ export default function Navbar() {
             Книги в суть
           </Link>
 
-          {/* Desktop categories */}
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-8">
             <Link
               href="/catalog"
               className="text-base font-medium text-gray-700 hover:text-[#2D5016] transition-colors"
             >
-              Каталог
+              Книги
             </Link>
             <Link
               href="/articles"
@@ -52,7 +52,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile dropdown menu */}
         {menuOpen && (
           <div className="md:hidden border-t border-gray-100 py-4 space-y-1">
             <Link
@@ -60,7 +60,7 @@ export default function Navbar() {
               className="block px-2 py-3 text-lg font-medium text-gray-700 hover:text-[#2D5016] transition-colors"
               onClick={() => setMenuOpen(false)}
             >
-              Каталог
+              Книги
             </Link>
             <Link
               href="/articles"
@@ -78,7 +78,7 @@ export default function Navbar() {
         <div className="flex h-16">
           {[
             { href: '/', icon: <Home size={20} strokeWidth={1.5} />, label: 'Головна' },
-            { href: '/catalog', icon: <LayoutGrid size={20} strokeWidth={1.5} />, label: 'Каталог' },
+            { href: '/catalog', icon: <BookOpen size={20} strokeWidth={1.5} />, label: 'Книги' },
             { href: '/articles', icon: <Newspaper size={20} strokeWidth={1.5} />, label: 'Статті' },
             { href: '/saved', icon: <BookMarked size={20} strokeWidth={1.5} />, label: 'Збережене' },
             { href: '/profile', icon: <User size={20} strokeWidth={1.5} />, label: 'Профіль' },
@@ -89,9 +89,7 @@ export default function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 font-medium transition-colors ${
-                  isActive
-                    ? 'text-[#2D5016]'
-                    : 'text-gray-500 hover:text-gray-700'
+                  isActive ? 'text-[#2D5016]' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 <span className={`flex items-center justify-center rounded-lg px-1 py-0.5 transition-colors ${isActive ? 'bg-[#2D5016]/[0.08]' : ''}`}>
