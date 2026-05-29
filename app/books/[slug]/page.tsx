@@ -3,7 +3,6 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Locale } from '@/lib/types'
 import { t } from '@/lib/i18n'
 import BookCoverHero from '@/components/BookCoverHero'
 import ReadTracker from '@/components/ReadTracker'
@@ -12,7 +11,7 @@ import BookCard from '@/components/BookCard'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 
 interface PageProps {
-  params: { locale: Locale; slug: string }
+  params: { slug: string }
 }
 
 function stripHtml(html: string): string {
@@ -25,7 +24,6 @@ function insertQuotesIntoSummary(summaryHtml: string, quotes: string[]): string 
   const quoteBlock = (text: string) =>
     `<blockquote class="inline-quote">${text}</blockquote>`
 
-  // Strategy 1: split by <hr> tags — cleanest section boundaries
   const hasHr = /<hr\s*\/?>/i.test(summaryHtml)
 
   if (hasHr) {
@@ -43,7 +41,6 @@ function insertQuotesIntoSummary(summaryHtml: string, quotes: string[]): string 
     return result.join('')
   }
 
-  // Strategy 2: after </p> tags — but only when NOT followed by list or heading
   const unsafeNext = /^\s*<(ul|ol|li|h2|h3)/i
   const parts = summaryHtml.split(/(<\/p>)/i)
   const result: string[] = []
@@ -58,7 +55,6 @@ function insertQuotesIntoSummary(summaryHtml: string, quotes: string[]): string 
       const nextPart = parts[i + 1] ?? ''
       const isSafe = !unsafeNext.test(nextPart.trimStart())
 
-      // Insert after every 3rd </p>, only in safe positions
       if (pCount % 3 === 0 && isSafe && quoteIndex < quotes.length) {
         result.push(quoteBlock(quotes[quoteIndex]))
         quoteIndex++
@@ -70,43 +66,35 @@ function insertQuotesIntoSummary(summaryHtml: string, quotes: string[]): string 
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const locale = (params.locale === 'en' ? 'en' : 'uk') as Locale
   const supabase = createAdminClient()
   const { data: book } = await supabase
     .from('books')
-    .select('title_ua, title_en, summary_ua, summary_en, cover_url, slug, author')
+    .select('title_ua, summary_ua, cover_url, slug, author')
     .eq('slug', params.slug)
     .single()
 
   if (!book) return {}
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://knyhy-v-sut.vercel.app'
-  const title = locale === 'uk' ? book.title_ua : book.title_en
-  const author = book.author
-  const summary = locale === 'uk' ? book.summary_ua : book.summary_en
-  const description = stripHtml(summary || '')
+  const title = book.title_ua
+  const description = stripHtml(book.summary_ua || '')
 
   return {
-    title: `${title} — ${author} | Самарі`,
+    title: `${title} — ${book.author} | Самарі`,
     description,
     keywords: [
-      title, author,
+      title, book.author,
       `${title} самарі`, `${title} огляд`,
-      `${author} книги`, 'book summary',
-      `${title} summary`, `${title} review`,
+      `${book.author} книги`,
     ],
     openGraph: {
-      title: `${title} — ${author}`,
+      title: `${title} — ${book.author}`,
       description,
       type: 'article',
       images: book.cover_url ? [{ url: book.cover_url, alt: title }] : [],
     },
     alternates: {
-      canonical: `${baseUrl}/${locale}/books/${book.slug}`,
-      languages: {
-        'uk': `${baseUrl}/uk/books/${book.slug}`,
-        'en': `${baseUrl}/en/books/${book.slug}`,
-      },
+      canonical: `${baseUrl}/books/${book.slug}`,
     },
   }
 }
@@ -119,15 +107,10 @@ export async function generateStaticParams() {
     .eq('published', true)
 
   if (!books) return []
-
-  return ['uk', 'en'].flatMap((locale) =>
-    books.map((book) => ({ locale, slug: book.slug }))
-  )
+  return books.map((book) => ({ slug: book.slug }))
 }
 
 export default async function BookPage({ params }: PageProps) {
-  const locale = (params.locale === 'en' ? 'en' : 'uk') as Locale
-  const tr = t[locale]
   const supabase = createClient()
 
   const { data: book } = await supabase
@@ -140,21 +123,12 @@ export default async function BookPage({ params }: PageProps) {
   if (!book) notFound()
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://knyhy-v-sut.vercel.app'
-  const summary = locale === 'uk' ? book.summary_ua : book.summary_en
-  const insights: string[] = locale === 'uk'
-    ? (book.key_insights_ua ?? [])
-    : (book.key_insights_en ?? [])
-  const practical: string[] = locale === 'uk'
-    ? (book.practical_ua ?? [])
-    : (book.practical_en ?? [])
-  const quotes: string[] = locale === 'uk'
-    ? (book.quotes_ua ?? [])
-    : (book.quotes_en ?? [])
-  const reflection: string[] = locale === 'uk'
-    ? (book.reflection_ua ?? [])
-    : (book.reflection_en ?? [])
+  const summary = book.summary_ua
+  const insights: string[] = book.key_insights_ua ?? []
+  const practical: string[] = book.practical_ua ?? []
+  const quotes: string[] = book.quotes_ua ?? []
+  const reflection: string[] = book.reflection_ua ?? []
 
-  // Related books
   const { data: relatedBooks } = await supabase
     .from('books')
     .select('*')
@@ -166,12 +140,12 @@ export default async function BookPage({ params }: PageProps) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Book',
-    name: locale === 'uk' ? book.title_ua : book.title_en,
+    name: book.title_ua,
     author: { '@type': 'Person', name: book.author },
     description: (summary || '').replace(/<[^>]*>/g, '').slice(0, 300),
     image: book.cover_url,
-    inLanguage: locale === 'uk' ? 'uk' : 'en',
-    url: `${baseUrl}/${locale}/books/${book.slug}`,
+    inLanguage: 'uk',
+    url: `${baseUrl}/books/${book.slug}`,
   }
 
   return (
@@ -183,16 +157,16 @@ export default async function BookPage({ params }: PageProps) {
       />
 
       {/* Back link */}
-      <Link href={`/${locale}`}
+      <Link href="/"
         className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#2D5016] transition-colors mb-8">
         <ArrowLeft size={16} strokeWidth={1.5} />
-        {tr.allBooks}
+        {t.allBooks}
       </Link>
 
-      <BookCoverHero book={book} locale={locale} />
+      <BookCoverHero book={book} />
 
       <div className="flex justify-end -mt-4 mb-4">
-        <ReadTracker book={book} locale={locale} />
+        <ReadTracker book={book} />
       </div>
 
       {/* Summary with inline quotes */}
@@ -220,7 +194,7 @@ export default async function BookPage({ params }: PageProps) {
       {insights.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6">
           <h2 className="font-playfair text-2xl font-semibold text-[#1A1A18] mb-6">
-            {tr.keyInsights}
+            {t.keyInsights}
           </h2>
           <ol className="space-y-4">
             {insights.map((insight, idx) => (
@@ -242,7 +216,7 @@ export default async function BookPage({ params }: PageProps) {
       {practical.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8">
           <h2 className="font-playfair text-2xl font-semibold text-[#1A1A18] mb-6">
-            {tr.practicalTitle}
+            {t.practicalTitle}
           </h2>
           <ul className="space-y-4">
             {practical.map((item, idx) => (
@@ -264,10 +238,10 @@ export default async function BookPage({ params }: PageProps) {
       {reflection.filter(q => q.trim()).length > 0 && (
         <div className="bg-[#2D5016] rounded-2xl p-8 md:p-12 mb-8">
           <h2 className="font-playfair text-2xl font-semibold text-white mb-1">
-            {locale === 'uk' ? 'Запитай себе' : 'Ask Yourself'}
+            Запитай себе
           </h2>
           <p className="text-white/70 text-sm mb-8">
-            {locale === 'uk' ? 'Питання для глибшого розуміння' : 'Questions for deeper understanding'}
+            Питання для глибшого розуміння
           </p>
           <ol className="space-y-6">
             {reflection.filter(q => q.trim()).map((question, idx) => (
@@ -288,12 +262,12 @@ export default async function BookPage({ params }: PageProps) {
       {relatedBooks && relatedBooks.length > 0 && (
         <div className="pt-8 mt-4 border-t border-gray-100 mb-8">
           <h2 className="font-playfair text-2xl font-semibold text-[#1A1A18] mb-6">
-            {locale === 'uk' ? 'Схожі книги' : 'Related Books'}
+            Схожі книги
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 md:grid md:grid-cols-3 md:overflow-visible">
             {relatedBooks.map((related) => (
               <div key={related.id} className="shrink-0 w-[160px] md:w-auto">
-                <BookCard book={related} locale={locale} />
+                <BookCard book={related} />
               </div>
             ))}
           </div>
@@ -302,13 +276,13 @@ export default async function BookPage({ params }: PageProps) {
 
       {/* Bottom nav */}
       <div className="flex items-center justify-between">
-        <Link href={`/${locale}`}
+        <Link href="/"
           className="flex items-center gap-2 text-sm font-medium text-[#2D5016] hover:underline">
           <ArrowLeft size={16} strokeWidth={1.5} />
-          {tr.allBooks}
+          {t.allBooks}
         </Link>
         <span className="flex items-center gap-1 text-sm text-gray-400">
-          {tr.nextBook}
+          {t.nextBook}
           <ArrowRight size={16} strokeWidth={1.5} />
         </span>
       </div>

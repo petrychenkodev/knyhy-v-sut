@@ -2,14 +2,13 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Book, Locale } from '@/lib/types'
+import { Book } from '@/lib/types'
 import { t, categoryLabels, catalogSubtitle, foundBooks } from '@/lib/i18n'
 import BookCard from './BookCard'
 import { Search, X, SearchX } from 'lucide-react'
 
 interface CatalogClientProps {
   books: Book[]
-  locale: Locale
 }
 
 const CATEGORIES = [
@@ -22,10 +21,9 @@ const CATEGORIES = [
   { value: 'finance' },
 ]
 
-export default function CatalogClient({ books, locale }: CatalogClientProps) {
+export default function CatalogClient({ books }: CatalogClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const tr = t[locale]
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '')
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') ?? 'all')
@@ -36,8 +34,8 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
     if (q) params.set('q', q)
     if (cat && cat !== 'all') params.set('category', cat)
     const queryString = params.toString()
-    router.replace(`/${locale}/catalog${queryString ? `?${queryString}` : ''}`)
-  }, [locale, router])
+    router.replace(`/catalog${queryString ? `?${queryString}` : ''}`)
+  }, [router])
 
   function handleSearch(value: string) {
     setSearchQuery(value)
@@ -59,7 +57,7 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
   function resetFilters() {
     setSearchQuery('')
     setSelectedCategory('all')
-    router.replace(`/${locale}/catalog`)
+    router.replace('/catalog')
   }
 
   const filtered = books
@@ -71,7 +69,6 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
       const q = searchQuery.toLowerCase()
       return (
         book.title_ua.toLowerCase().includes(q) ||
-        book.title_en.toLowerCase().includes(q) ||
         book.author.toLowerCase().includes(q)
       )
     })
@@ -82,8 +79,8 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
       : books.filter(b => b.category === cat).length
 
   function categoryLabel(value: string): string {
-    if (value === 'all') return tr.allCategory
-    return categoryLabels[value]?.[locale] ?? value
+    if (value === 'all') return t.allCategory
+    return categoryLabels[value] ?? value
   }
 
   return (
@@ -91,10 +88,10 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
       {/* Page header */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6">
         <h1 className="font-playfair text-3xl md:text-4xl font-bold text-[#1A1A18] mb-1">
-          {tr.catalogTitle}
+          {t.catalogTitle}
         </h1>
         <p className="text-sm text-gray-500">
-          {catalogSubtitle[locale](books.length)}
+          {catalogSubtitle(books.length)}
         </p>
       </div>
 
@@ -108,7 +105,7 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder={tr.searchPlaceholder}
+              placeholder={t.searchPlaceholder}
               className="w-full pl-9 pr-8 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5016]/40 focus:border-[#2D5016] transition-colors"
             />
             {searchQuery && (
@@ -148,7 +145,7 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
       {/* Results */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         <p className="text-sm text-gray-500 mb-5">
-          {foundBooks[locale](filtered.length)}
+          {foundBooks(filtered.length)}
         </p>
 
         {filtered.length === 0 ? (
@@ -156,12 +153,12 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
             <div className="flex justify-center mb-4">
               <SearchX size={48} className="text-gray-300" strokeWidth={1.5} />
             </div>
-            <p className="text-gray-600 mb-4">{tr.noResults}</p>
+            <p className="text-gray-600 mb-4">{t.noResults}</p>
             <button
               onClick={resetFilters}
               className="px-5 py-2 text-sm font-medium text-[#2D5016] border border-[#2D5016] rounded-lg hover:bg-[#2D5016] hover:text-white transition-colors"
             >
-              {tr.resetFilters}
+              {t.resetFilters}
             </button>
           </div>
         ) : (
@@ -169,7 +166,7 @@ export default function CatalogClient({ books, locale }: CatalogClientProps) {
             className={`grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 transition-opacity duration-200 ${animating ? 'opacity-0' : 'opacity-100'}`}
           >
             {filtered.map((book) => (
-              <BookCard key={book.id} book={book} locale={locale} />
+              <BookCard key={book.id} book={book} />
             ))}
           </div>
         )}

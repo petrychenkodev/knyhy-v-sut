@@ -1,34 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server'
-
-const VALID_LOCALES = ['uk', 'en']
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip internal Next.js paths and static files
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.startsWith('/admin') ||
-    pathname.includes('.')
-  ) {
-    return NextResponse.next()
+  // Redirect old /uk/* URLs to /* for backwards compat
+  if (pathname.startsWith('/uk')) {
+    const newPath = pathname.replace(/^\/uk/, '') || '/'
+    return NextResponse.redirect(new URL(newPath, request.url))
   }
 
-  // Root → /uk
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/uk', request.url))
-  }
-
-  // Check first segment is a valid locale
-  const segments = pathname.split('/').filter(Boolean)
-  if (segments.length > 0 && !VALID_LOCALES.includes(segments[0])) {
-    return NextResponse.redirect(new URL('/uk', request.url))
+  // Redirect /en/* to /* as well
+  if (pathname.startsWith('/en')) {
+    const newPath = pathname.replace(/^\/en/, '') || '/'
+    return NextResponse.redirect(new URL(newPath, request.url))
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next|api|admin|favicon.ico|.*\\..*).*)'],
 }

@@ -2,25 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { Book, Locale } from '@/lib/types'
+import { Book } from '@/lib/types'
 import { isFavorite, toggleFavorite } from '@/lib/favorites'
 
 interface FavoriteButtonProps {
   book: Book
-  locale?: Locale
   className?: string
 }
 
-const toastLabels = {
-  uk: { saved: 'Збережено', removed: 'Видалено зі збережених' },
-  en: { saved: 'Saved',     removed: 'Removed from saved' },
-}
-
-export default function FavoriteButton({ book, locale = 'uk', className = '' }: FavoriteButtonProps) {
+export default function FavoriteButton({ book, className = '' }: FavoriteButtonProps) {
   const [saved, setSaved] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
-  const labels = toastLabels[locale]
 
   useEffect(() => {
     setMounted(true)
@@ -32,7 +25,7 @@ export default function FavoriteButton({ book, locale = 'uk', className = '' }: 
     e.stopPropagation()
     const nowSaved = toggleFavorite(book)
     setSaved(nowSaved)
-    setToast(nowSaved ? labels.saved : labels.removed)
+    setToast(nowSaved ? 'Збережено' : 'Видалено зі збережених')
     setTimeout(() => setToast(null), 2000)
   }
 
@@ -40,7 +33,7 @@ export default function FavoriteButton({ book, locale = 'uk', className = '' }: 
     <>
       <button
         onClick={handleToggle}
-        aria-label={saved ? 'Remove from saved' : 'Save book'}
+        aria-label={saved ? 'Видалити зі збережених' : 'Зберегти книгу'}
         className={`transition-colors ${className}`}
       >
         {saved ? (
@@ -54,7 +47,6 @@ export default function FavoriteButton({ book, locale = 'uk', className = '' }: 
         )}
       </button>
 
-      {/* Render toast at document.body to escape any overflow:hidden/transform context */}
       {mounted && toast && createPortal(
         <div className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg pointer-events-none whitespace-nowrap">
           {toast}

@@ -3,25 +3,23 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Article, Locale } from '@/lib/types'
+import { Article } from '@/lib/types'
 import { Clock } from 'lucide-react'
 
 interface ArticleCardProps {
   article: Article
-  locale: Locale
 }
 
-export default function ArticleCard({ article, locale }: ArticleCardProps) {
+export default function ArticleCard({ article }: ArticleCardProps) {
   const [imgError, setImgError] = useState(false)
-  const title = locale === 'uk' ? article.title_ua : article.title_en
-  const excerpt = locale === 'uk' ? article.excerpt_ua : article.excerpt_en
-  const date = new Date(article.created_at).toLocaleDateString(
-    locale === 'uk' ? 'uk-UA' : 'en-US',
-    { day: 'numeric', month: 'long', year: 'numeric' }
-  )
+  const title = article.title_ua
+  const excerpt = article.excerpt_ua
+  const date = new Date(article.created_at).toLocaleDateString('uk-UA', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  })
 
   return (
-    <Link href={`/${locale}/articles/${article.slug}`} className="group block">
+    <Link href={`/articles/${article.slug}`} className="group block">
       <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-50 h-full flex flex-col">
         {/* Cover — 16:9 */}
         <div className="relative aspect-video bg-gray-100 overflow-hidden">

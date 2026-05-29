@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, DM_Sans } from 'next/font/google'
+import Navbar from '@/components/Navbar'
+import MobileBottomNav from '@/components/MobileBottomNav'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -15,8 +17,48 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Книги в суть',
-  description: 'Головні ідеї кращих книг — за 15 хвилин',
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://knyhy-v-sut.vercel.app'
+  ),
+  title: {
+    default: 'Книги в суть — Самарі найкращих книг',
+    template: '%s | Книги в суть',
+  },
+  description:
+    'Читайте самарі найкращих книг з психології, бізнесу, філософії та науки. Головні ідеї за 15 хвилин.',
+  keywords: [
+    'книги самарі',
+    'книги українською',
+    'психологія книги',
+    'бізнес книги',
+    'філософія книги',
+    'короткий зміст книг',
+    'книги огляд',
+    'нонфікшн',
+    'саморозвиток',
+  ],
+  authors: [{ name: 'Книги в суть' }],
+  creator: 'Книги в суть',
+  openGraph: {
+    type: 'website',
+    locale: 'uk_UA',
+    siteName: 'Книги в суть',
+    title: 'Книги в суть — Самарі найкращих книг',
+    description: 'Головні ідеї кращих книг за 15 хвилин',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Книги в суть' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Книги в суть — Самарі найкращих книг',
+    description: 'Головні ідеї кращих книг за 15 хвилин',
+    images: ['/og-image.png'],
+  },
+  alternates: {
+    canonical: '/',
+  },
+  verification: {
+    google: '5KcR6eyXM7JSwUtaS_cubVoAaFf8h7oK2RlPzbFodY4',
+  },
 }
 
 export default function RootLayout({
@@ -27,7 +69,13 @@ export default function RootLayout({
   return (
     <html lang="uk">
       <body className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}>
-        {children}
+        <div className="min-h-screen bg-[#FAFAF8]">
+          <Navbar />
+          <main className="pb-20 md:pb-0">
+            {children}
+          </main>
+          <MobileBottomNav />
+        </div>
       </body>
     </html>
   )

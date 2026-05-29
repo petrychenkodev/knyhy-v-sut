@@ -2,33 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Locale } from '@/lib/types'
 import { Book } from '@/lib/types'
 import { getFavorites, getHistory, getReadBooks, getFirstVisit } from '@/lib/favorites'
 import BookCard from '@/components/BookCard'
 import { BookMarked, CheckCircle, Eye, Clock, User } from 'lucide-react'
 
-interface PageProps {
-  params: { locale: Locale }
+function getMotivation(count: number): string {
+  if (count <= 3) return 'Гарний початок!'
+  if (count <= 6) return 'Ти на правильному шляху!'
+  if (count <= 10) return 'Майже там!'
+  return 'Неймовірно!'
 }
 
-function getMotivation(count: number, locale: Locale): string {
-  if (locale === 'uk') {
-    if (count <= 3) return 'Гарний початок!'
-    if (count <= 6) return 'Ти на правильному шляху!'
-    if (count <= 10) return 'Майже там!'
-    return 'Неймовірно!'
-  } else {
-    if (count <= 3) return 'Great start!'
-    if (count <= 6) return 'You are on the right track!'
-    if (count <= 10) return 'Almost there!'
-    return 'Incredible!'
-  }
-}
-
-export default function ProfilePage({ params }: PageProps) {
-  const locale = (params.locale === 'en' ? 'en' : 'uk') as Locale
-
+export default function ProfilePage() {
   const [mounted, setMounted] = useState(false)
   const [favorites, setFavorites] = useState<Book[]>([])
   const [history, setHistory] = useState<Book[]>([])
@@ -70,11 +56,10 @@ export default function ProfilePage({ params }: PageProps) {
     setShowConfirm(false)
   }
 
-  // Total minutes from read books
   const totalMinutes = history.filter(b => readIds.includes(b.id)).reduce((sum, b) => sum + (b.read_time_min || 0), 0)
 
   const memberSince = firstVisit
-    ? new Date(firstVisit).toLocaleDateString(locale === 'uk' ? 'uk-UA' : 'en-US', { month: 'long', year: 'numeric' })
+    ? new Date(firstVisit).toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })
     : ''
 
   const progressPercent = Math.min((readIds.length / goal) * 100, 100)
@@ -89,23 +74,19 @@ export default function ProfilePage({ params }: PageProps) {
         <div className="w-20 h-20 rounded-full bg-[#2D5016] flex items-center justify-center mb-4 shadow-md">
           <User size={36} strokeWidth={1.5} className="text-white" />
         </div>
-        <h1 className="font-playfair text-3xl font-bold text-[#1A1A18] mb-1">
-          {locale === 'uk' ? 'Мій профіль' : 'My Profile'}
-        </h1>
+        <h1 className="font-playfair text-3xl font-bold text-[#1A1A18] mb-1">Мій профіль</h1>
         {memberSince && (
-          <p className="text-sm text-gray-500">
-            {locale === 'uk' ? `З нами з ${memberSince}` : `Member since ${memberSince}`}
-          </p>
+          <p className="text-sm text-gray-500">З нами з {memberSince}</p>
         )}
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         {[
-          { icon: <BookMarked size={22} strokeWidth={1.5} />, value: favorites.length, label: locale === 'uk' ? 'Збережено' : 'Saved' },
-          { icon: <CheckCircle size={22} strokeWidth={1.5} />, value: readIds.length, label: locale === 'uk' ? 'Прочитано' : 'Read' },
-          { icon: <Eye size={22} strokeWidth={1.5} />, value: history.length, label: locale === 'uk' ? 'Переглянуто' : 'Viewed' },
-          { icon: <Clock size={22} strokeWidth={1.5} />, value: totalMinutes, label: locale === 'uk' ? 'Хвилин' : 'Minutes' },
+          { icon: <BookMarked size={22} strokeWidth={1.5} />, value: favorites.length, label: 'Збережено' },
+          { icon: <CheckCircle size={22} strokeWidth={1.5} />, value: readIds.length, label: 'Прочитано' },
+          { icon: <Eye size={22} strokeWidth={1.5} />, value: history.length, label: 'Переглянуто' },
+          { icon: <Clock size={22} strokeWidth={1.5} />, value: totalMinutes, label: 'Хвилин' },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col items-center gap-2">
             <span className="text-[#2D5016]">{stat.icon}</span>
@@ -117,18 +98,14 @@ export default function ProfilePage({ params }: PageProps) {
 
       {/* Recently Viewed */}
       <section className="mb-10">
-        <h2 className="font-playfair text-xl font-semibold text-[#1A1A18] mb-4">
-          {locale === 'uk' ? 'Нещодавно переглянуті' : 'Recently Viewed'}
-        </h2>
+        <h2 className="font-playfair text-xl font-semibold text-[#1A1A18] mb-4">Нещодавно переглянуті</h2>
         {history.length === 0 ? (
-          <p className="text-gray-500 text-sm">
-            {locale === 'uk' ? 'Ви ще не переглядали жодної книги' : "You haven't viewed any books yet"}
-          </p>
+          <p className="text-gray-500 text-sm">Ви ще не переглядали жодної книги</p>
         ) : (
           <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
             {history.slice(0, 5).map(book => (
               <div key={book.id} className="shrink-0 w-[160px]">
-                <BookCard book={book} locale={locale} />
+                <BookCard book={book} />
               </div>
             ))}
           </div>
@@ -138,23 +115,19 @@ export default function ProfilePage({ params }: PageProps) {
       {/* Saved Books */}
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-playfair text-xl font-semibold text-[#1A1A18]">
-            {locale === 'uk' ? 'Збережені книги' : 'Saved Books'}
-          </h2>
+          <h2 className="font-playfair text-xl font-semibold text-[#1A1A18]">Збережені книги</h2>
           {favorites.length > 4 && (
-            <Link href={`/${locale}/saved`} className="text-sm text-[#2D5016] hover:underline">
-              {locale === 'uk' ? 'Переглянути всі' : 'View all'} &rarr;
+            <Link href="/saved" className="text-sm text-[#2D5016] hover:underline">
+              Переглянути всі &rarr;
             </Link>
           )}
         </div>
         {favorites.length === 0 ? (
-          <p className="text-gray-500 text-sm">
-            {locale === 'uk' ? 'Збережених книг немає. Натисніть на закладку на будь-якій книзі.' : 'No saved books. Click the bookmark on any book.'}
-          </p>
+          <p className="text-gray-500 text-sm">Збережених книг немає. Натисніть на закладку на будь-якій книзі.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {favorites.slice(0, 4).map(book => (
-              <BookCard key={book.id} book={book} locale={locale} />
+              <BookCard key={book.id} book={book} />
             ))}
           </div>
         )}
@@ -163,12 +136,10 @@ export default function ProfilePage({ params }: PageProps) {
       {/* Reading Goal */}
       <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-playfair text-xl font-semibold text-[#1A1A18]">
-            {locale === 'uk' ? 'Мета читання' : 'Reading Goal'}
-          </h2>
+          <h2 className="font-playfair text-xl font-semibold text-[#1A1A18]">Мета читання</h2>
           {!editingGoal ? (
             <button onClick={() => setEditingGoal(true)} className="text-sm text-gray-400 hover:text-[#2D5016] transition-colors">
-              {locale === 'uk' ? 'Змінити' : 'Edit'}
+              Змінити
             </button>
           ) : (
             <div className="flex items-center gap-2">
@@ -179,43 +150,31 @@ export default function ProfilePage({ params }: PageProps) {
                 className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-sm text-center"
                 min={1}
               />
-              <button onClick={saveGoal} className="text-sm text-[#2D5016] font-medium">
-                {locale === 'uk' ? 'Зберегти' : 'Save'}
-              </button>
+              <button onClick={saveGoal} className="text-sm text-[#2D5016] font-medium">Зберегти</button>
             </div>
           )}
         </div>
-        <p className="text-sm text-gray-600 mb-3">
-          {locale === 'uk'
-            ? `${readIds.length} / ${goal} книг цього року`
-            : `${readIds.length} / ${goal} books this year`}
-        </p>
+        <p className="text-sm text-gray-600 mb-3">{readIds.length} / {goal} книг цього року</p>
         <div className="w-full bg-gray-100 rounded-full h-3 mb-3">
           <div
             className="bg-[#2D5016] h-3 rounded-full transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <p className="text-sm text-gray-500">{getMotivation(readIds.length, locale)}</p>
+        <p className="text-sm text-gray-500">{getMotivation(readIds.length)}</p>
       </section>
 
       {/* Clear data */}
       <div className="text-center">
         {!showConfirm ? (
           <button onClick={() => setShowConfirm(true)} className="text-xs text-gray-400 hover:text-red-400 transition-colors">
-            {locale === 'uk' ? 'Очистити всі дані' : 'Clear all data'}
+            Очистити всі дані
           </button>
         ) : (
           <div className="flex items-center justify-center gap-3">
-            <span className="text-xs text-gray-500">
-              {locale === 'uk' ? 'Ви впевнені?' : 'Are you sure?'}
-            </span>
-            <button onClick={clearAllData} className="text-xs text-red-500 font-medium hover:underline">
-              {locale === 'uk' ? 'Так, очистити' : 'Yes, clear'}
-            </button>
-            <button onClick={() => setShowConfirm(false)} className="text-xs text-gray-400 hover:underline">
-              {locale === 'uk' ? 'Скасувати' : 'Cancel'}
-            </button>
+            <span className="text-xs text-gray-500">Ви впевнені?</span>
+            <button onClick={clearAllData} className="text-xs text-red-500 font-medium hover:underline">Так, очистити</button>
+            <button onClick={() => setShowConfirm(false)} className="text-xs text-gray-400 hover:underline">Скасувати</button>
           </div>
         )}
       </div>
