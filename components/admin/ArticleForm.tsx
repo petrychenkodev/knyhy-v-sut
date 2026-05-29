@@ -26,7 +26,6 @@ const sectionTitleCls = 'text-base font-semibold text-gray-900 pb-1 border-b bor
 
 export default function ArticleForm({ article, action }: ArticleFormProps) {
   const [contentUa, setContentUa] = useState(article?.content_ua ?? '')
-  const [contentEn, setContentEn] = useState(article?.content_en ?? '')
   const [coverUrl, setCoverUrl] = useState<string | null>(article?.cover_url ?? null)
   const [published, setPublished] = useState(article?.published ?? false)
   const [slugValue, setSlugValue] = useState(article?.slug ?? '')
@@ -35,7 +34,7 @@ export default function ArticleForm({ article, action }: ArticleFormProps) {
   const [pendingType, setPendingType] = useState<'draft' | 'publish' | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
-  function handleTitleEnChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleTitleUaChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!slugTouched) setSlugValue(slugify(e.target.value))
   }
 
@@ -60,18 +59,11 @@ export default function ArticleForm({ article, action }: ArticleFormProps) {
       {/* Section 1: Basic info */}
       <div className={sectionCls}>
         <h2 className={sectionTitleCls}>Основна інформація</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Назва (UA) *</label>
-            <input name="title_ua" type="text" required defaultValue={article?.title_ua}
-              className={inputCls} placeholder="Назва статті українською" />
-          </div>
-          <div>
-            <label className={labelCls}>Title (EN) *</label>
-            <input name="title_en" type="text" required defaultValue={article?.title_en}
-              className={inputCls} placeholder="Article title in English"
-              onChange={handleTitleEnChange} />
-          </div>
+        <div>
+          <label className={labelCls}>Назва *</label>
+          <input name="title_ua" type="text" required defaultValue={article?.title_ua}
+            className={inputCls} placeholder="Назва статті"
+            onChange={handleTitleUaChange} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
@@ -100,29 +92,20 @@ export default function ArticleForm({ article, action }: ArticleFormProps) {
             placeholder="auto-generated-from-title"
           />
           <p className="mt-1 text-xs text-gray-400">
-            URL: /uk/articles/<span className="text-gray-600">{slugValue || '...'}</span>
+            URL: /articles/<span className="text-gray-600">{slugValue || '...'}</span>
           </p>
         </div>
       </div>
 
-      {/* Section 2: Excerpts */}
+      {/* Section 2: Excerpt */}
       <div className={sectionCls}>
         <h2 className={sectionTitleCls}>Анонс</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Анонс (UA) *</label>
-            <textarea name="excerpt_ua" rows={3} required
-              defaultValue={article?.excerpt_ua}
-              className={`${inputCls} resize-none`}
-              placeholder="Короткий опис статті (2-3 речення)..." />
-          </div>
-          <div>
-            <label className={labelCls}>Excerpt (EN) *</label>
-            <textarea name="excerpt_en" rows={3} required
-              defaultValue={article?.excerpt_en}
-              className={`${inputCls} resize-none`}
-              placeholder="Short article description (2-3 sentences)..." />
-          </div>
+        <div>
+          <label className={labelCls}>Анонс *</label>
+          <textarea name="excerpt_ua" rows={3} required
+            defaultValue={article?.excerpt_ua}
+            className={`${inputCls} resize-none`}
+            placeholder="Короткий опис статті (2-3 речення)..." />
         </div>
       </div>
 
@@ -130,16 +113,9 @@ export default function ArticleForm({ article, action }: ArticleFormProps) {
       <div className={sectionCls}>
         <h2 className={sectionTitleCls}>Контент</h2>
         <input type="hidden" name="content_ua" value={contentUa} />
-        <input type="hidden" name="content_en" value={contentEn} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Контент (UA) *</label>
-            <RichTextEditor value={contentUa} onChange={setContentUa} placeholder="Текст статті українською..." />
-          </div>
-          <div>
-            <label className={labelCls}>Content (EN) *</label>
-            <RichTextEditor value={contentEn} onChange={setContentEn} placeholder="Article content in English..." />
-          </div>
+        <div>
+          <label className={labelCls}>Контент *</label>
+          <RichTextEditor value={contentUa} onChange={setContentUa} placeholder="Текст статті..." />
         </div>
       </div>
 

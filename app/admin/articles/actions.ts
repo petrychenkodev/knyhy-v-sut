@@ -17,20 +17,18 @@ export async function createArticle(formData: FormData) {
   const supabase = createAdminClient()
 
   const titleUa = (formData.get('title_ua') as string)?.trim()
-  const titleEn = (formData.get('title_en') as string)?.trim()
   const slugInput = (formData.get('slug') as string)?.trim()
 
   if (!titleUa) throw new Error('title_ua is required')
-  if (!titleEn) throw new Error('title_en is required')
 
   const article = {
     title_ua: titleUa,
-    title_en: titleEn,
-    slug: slugInput || slugify(titleEn),
+    title_en: '',
+    slug: slugInput || slugify(titleUa),
     excerpt_ua: (formData.get('excerpt_ua') as string) || '',
-    excerpt_en: (formData.get('excerpt_en') as string) || '',
+    excerpt_en: '',
     content_ua: (formData.get('content_ua') as string) || '',
-    content_en: (formData.get('content_en') as string) || '',
+    content_en: '',
     cover_url: (formData.get('cover_url') as string) || null,
     read_time_min: parseInt(formData.get('read_time_min') as string) || 5,
     published: formData.get('published') === 'true',
@@ -63,20 +61,18 @@ export async function updateArticle(id: string, formData: FormData) {
   const supabase = createAdminClient()
 
   const titleUa = (formData.get('title_ua') as string)?.trim()
-  const titleEn = (formData.get('title_en') as string)?.trim()
   const slugInput = (formData.get('slug') as string)?.trim()
 
   if (!titleUa) throw new Error('title_ua is required')
-  if (!titleEn) throw new Error('title_en is required')
 
   const update = {
     title_ua: titleUa,
-    title_en: titleEn,
-    slug: slugInput || slugify(titleEn),
+    title_en: '',
+    slug: slugInput || slugify(titleUa),
     excerpt_ua: (formData.get('excerpt_ua') as string) || '',
-    excerpt_en: (formData.get('excerpt_en') as string) || '',
+    excerpt_en: '',
     content_ua: (formData.get('content_ua') as string) || '',
-    content_en: (formData.get('content_en') as string) || '',
+    content_en: '',
     cover_url: (formData.get('cover_url') as string) || null,
     read_time_min: parseInt(formData.get('read_time_min') as string) || 5,
     published: formData.get('published') === 'true',
