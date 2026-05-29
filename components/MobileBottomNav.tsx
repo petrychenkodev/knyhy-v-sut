@@ -22,6 +22,34 @@ export default function MobileBottomNav() {
     setNotesCount(getNotes().length)
   }, [])
 
+  // Chrome-specific fix: re-anchor nav on scroll/resize
+  useEffect(() => {
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
+    if (!isChrome) return
+
+    const nav = document.querySelector('.mobile-bottom-nav') as HTMLElement | null
+    if (!nav) return
+
+    let ticking = false
+    const fix = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          nav.style.transform = 'translate3d(0,0,0)'
+          nav.style.bottom = '0px'
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+
+    window.addEventListener('scroll', fix, { passive: true })
+    window.addEventListener('resize', fix, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', fix)
+      window.removeEventListener('resize', fix)
+    }
+  }, [])
+
   const isActive = (href: string) => {
     if (href === '/catalog')  return pathname === '/catalog' || pathname.startsWith('/books/')
     if (href === '/articles') return pathname === '/articles' || (pathname.startsWith('/articles/') && pathname !== '/articles')
@@ -30,23 +58,28 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-        className="md:hidden"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          backgroundColor: 'white',
-          borderTop: '1px solid #f3f4f6',
-          boxShadow: '0 -1px 0 0 #f3f4f6',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          // The key fix: promote to GPU layer to prevent iOS/Chrome detachment
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden',
-          WebkitTransform: 'translate3d(0,0,0)',
-          transform: 'translate3d(0,0,0)',
-        }}
+      className="mobile-bottom-nav md:hidden"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        backgroundColor: 'white',
+        borderTop: '1px solid #f3f4f6',
+        boxShadow: '0 -1px 0 0 #f3f4f6',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        minHeight: '56px',
+        // GPU compositing layer — prevents iOS/Chrome detachment
+        WebkitBackfaceVisibility: 'hidden',
+        backfaceVisibility: 'hidden',
+        WebkitTransform: 'translate3d(0,0,0)',
+        transform: 'translate3d(0,0,0)',
+        willChange: 'transform',
+        // Chrome: create new stacking/layout context
+        isolation: 'isolate' as const,
+        contain: 'layout style paint' as const,
+      }}
       >
         <div style={{ display: 'flex', height: '56px' }}>
           {navItems.map(({ href, Icon, label }) => {

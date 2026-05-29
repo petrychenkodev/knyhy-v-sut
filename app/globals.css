@@ -21,12 +21,25 @@ html {
 body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-}
-
-body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Chrome mobile fixed positioning fix */
+@media screen and (max-width: 768px) {
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    min-height: 56px;
+    isolation: isolate;
+    contain: layout style paint;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
 }
 
 @layer utilities {
