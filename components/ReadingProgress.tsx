@@ -7,36 +7,32 @@ export default function ReadingProgress() {
 
   useEffect(() => {
     const updateProgress = () => {
-      const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const docHeight =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight
       const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
-      setWidth(progress)
+      setWidth(Math.min(100, Math.max(0, progress)))
     }
 
     window.addEventListener('scroll', updateProgress, { passive: true })
+    updateProgress()
     return () => window.removeEventListener('scroll', updateProgress)
   }, [])
 
   return (
     <div
-      className="pointer-events-none"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
-        right: 0,
         height: '3px',
+        width: `${width}%`,
+        backgroundColor: '#2D5016',
         zIndex: 9999,
+        transition: 'width 0.15s ease',
+        pointerEvents: 'none',
       }}
-    >
-      <div
-        style={{
-          height: '100%',
-          width: `${width}%`,
-          backgroundColor: '#2D5016',
-          transition: 'width 0.1s ease',
-        }}
-      />
-    </div>
+    />
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { saveNote } from '@/lib/notes'
 import { Bookmark, X } from 'lucide-react'
@@ -16,6 +16,7 @@ interface PopupState {
   x: number
   y: number
   text: string
+  direction: 'up' | 'down'
 }
 
 export default function TextHighlighter({ children, sourceType, sourceTitle, sourceSlug }: Props) {
@@ -24,45 +25,29 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
   const [toast, setToast] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
   const handleSelection = useCallback(() => {
     const selection = window.getSelection()
-    if (!selection || selection.isCollapsed) {
-      setPopup(null)
-      return
-    }
+    if (!selection || selection.isCollapsed) { setPopup(null); return }
 
     const text = selection.toString().trim()
-    if (text.length < 10 || text.length > 500) {
-      setPopup(null)
-      return
-    }
+    if (text.length < 10 || text.length > 500) { setPopup(null); return }
 
-    // Check if selection is inside our container
     if (!containerRef.current) return
     const range = selection.getRangeAt(0)
-    if (!containerRef.current.contains(range.commonAncestorContainer)) {
-      setPopup(null)
-      return
-    }
+    if (!containerRef.current.contains(range.commonAncestorContainer)) { setPopup(null); return }
 
     const rect = range.getBoundingClientRect()
+    const isMobile = window.innerWidth < 768
+    const clampX = (raw: number) =>
+      Math.min(window.innerWidth - 90, Math.max(90, raw))
+    const cx = clampX(rect.left + rect.width / 2)
 
-    // Clamp x so popup never overflows screen edges
-    const rawX = rect.left + rect.width / 2
-    const clampedX = Math.min(
-      window.innerWidth - 90,
-      Math.max(90, rawX)
+    setPopup(isMobile
+      ? { x: cx, y: rect.bottom + 8, text, direction: 'down' }
+      : { x: cx, y: rect.top - 8,    text, direction: 'up'   }
     )
-
-    setPopup({
-      x: clampedX,
-      y: rect.top - 8,   // viewport-relative; popup is position:fixed
-      text,
-    })
   }, [])
 
   useEffect(() => {
@@ -74,7 +59,6 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     }
   }, [handleSelection])
 
-  // Hide popup on scroll
   useEffect(() => {
     const hide = () => setPopup(null)
     window.addEventListener('scroll', hide, { passive: true })
@@ -83,33 +67,50 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
 
   const handleSave = () => {
     if (!popup) return
-    saveNote({
-      text: popup.text,
-      comment: '',
-      sourceType,
-      sourceTitle,
-      sourceSlug,
-    })
+    saveNote({ text: popup.text, comment: '', sourceType, sourceTitle, sourceSlug })
     setPopup(null)
     window.getSelection()?.removeAllRanges()
     setToast(true)
     setTimeout(() => setToast(false), 2000)
   }
 
+  const arrowUp = (
+    <div style={{
+      position: 'absolute', top: '-6px', left: '50%',
+      transform: 'translateX(-50%)',
+      width: 0, height: 0,
+      borderLeft: '7px solid transparent',
+      borderRight: '7px solid transparent',
+      borderBottom: '7px solid #1A1A18',
+    }} />
+  )
+
+  const arrowDown = (
+    <div style={{
+      position: 'absolute', bottom: '-6px', left: '50%',
+      transform: 'translateX(-50%)',
+      width: 0, height: 0,
+      borderLeft: '7px solid transparent',
+      borderRight: '7px solid transparent',
+      borderTop: '7px solid #1A1A18',
+    }} />
+  )
+
   return (
     <div ref={containerRef}>
       {children}
 
       {mounted && popup && createPortal(
-        <div
-          style={{
-            position: 'fixed',
-            left: `${popup.x}px`,
-            top: `${popup.y}px`,
-            transform: 'translateX(-50%) translateY(-100%)',
-            zIndex: 9999,
-          }}
-        >
+        <div style={{
+          position: 'fixed',
+          left: `${popup.x}px`,
+          top: `${popup.y}px`,
+          transform: popup.direction === 'up'
+            ? 'translateX(-50%) translateY(-100%)'
+            : 'translateX(-50%)',
+          zIndex: 9999,
+        }}>
+          {popup.direction === 'down' && arrowUp}
           <div
             className="flex items-center gap-2 bg-[#1A1A18] rounded-lg px-3 py-2 shadow-lg cursor-pointer select-none"
             onClick={handleSave}
@@ -123,16 +124,13 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
               onClick={(e) => { e.stopPropagation(); setPopup(null) }}
             />
           </div>
-          {/* Triangle arrow pointing down */}
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-1.5 overflow-hidden">
-            <div className="w-3 h-3 bg-[#1A1A18] rotate-45 translate-y-[-50%]" />
-          </div>
+          {popup.direction === 'up' && arrowDown}
         </div>,
         document.body
       )}
 
       {mounted && toast && createPortal(
-        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-[#2D5016] text-white px-4 py-2 rounded-lg shadow-lg z-[1001] text-sm">
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-[#2D5016] text-white px-4 py-2 rounded-lg shadow-lg z-[9999] text-sm pointer-events-none">
           Збережено ✓
         </div>,
         document.body
