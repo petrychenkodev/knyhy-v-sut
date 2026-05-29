@@ -16,7 +16,8 @@ export default function MobileBottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100 shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100 shadow-lg"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="flex h-16 w-full">
         {navItems.map((item) => {
           const isActive = pathname === item.href

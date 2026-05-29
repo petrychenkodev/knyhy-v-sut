@@ -17,6 +17,12 @@ const dmSans = DM_Sans({
   display: 'swap',
 })
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'https://knyhy-v-sut.vercel.app'
@@ -72,7 +78,7 @@ export default function RootLayout({
       <body className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}>
         <div className="min-h-screen bg-[#FAFAF8]">
           <Navbar />
-          <main className="pb-20 md:pb-0">
+          <main className="pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
             {children}
           </main>
           <MobileBottomNav />

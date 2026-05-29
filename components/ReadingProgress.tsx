@@ -18,10 +18,24 @@ export default function ReadingProgress() {
   }, [])
 
   return (
-    <div className="fixed top-16 left-0 right-0 z-40 h-[3px] bg-transparent pointer-events-none">
+    <div
+      className="pointer-events-none"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '3px',
+        zIndex: 9999,
+      }}
+    >
       <div
-        className="h-full bg-[#2D5016]"
-        style={{ width: `${width}%`, transition: 'width 0.1s ease' }}
+        style={{
+          height: '100%',
+          width: `${width}%`,
+          backgroundColor: '#2D5016',
+          transition: 'width 0.1s ease',
+        }}
       />
     </div>
   )
