@@ -75,25 +75,29 @@ export default function Navbar() {
 
       {/* Mobile bottom nav */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 shadow-lg">
-        <div className="grid grid-cols-5 h-16">
+        <div className="flex h-16">
           {[
-            { href: '/', icon: <Home size={18} strokeWidth={1.5} />, label: 'Головна' },
-            { href: '/catalog', icon: <LayoutGrid size={18} strokeWidth={1.5} />, label: 'Каталог' },
-            { href: '/articles', icon: <Newspaper size={18} strokeWidth={1.5} />, label: 'Статті' },
-            { href: '/saved', icon: <BookMarked size={18} strokeWidth={1.5} />, label: 'Збережене' },
-            { href: '/profile', icon: <User size={18} strokeWidth={1.5} />, label: 'Профіль' },
+            { href: '/', icon: <Home size={20} strokeWidth={1.5} />, label: 'Головна' },
+            { href: '/catalog', icon: <LayoutGrid size={20} strokeWidth={1.5} />, label: 'Каталог' },
+            { href: '/articles', icon: <Newspaper size={20} strokeWidth={1.5} />, label: 'Статті' },
+            { href: '/saved', icon: <BookMarked size={20} strokeWidth={1.5} />, label: 'Збережене' },
+            { href: '/profile', icon: <User size={20} strokeWidth={1.5} />, label: 'Профіль' },
           ].map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors ${
-                  isActive ? 'text-[#2D5016]' : 'text-gray-400 hover:text-gray-600'
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 font-medium transition-colors ${
+                  isActive
+                    ? 'text-[#2D5016]'
+                    : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {item.icon}
-                <span>{item.label}</span>
+                <span className={`flex items-center justify-center rounded-lg px-1 py-0.5 transition-colors ${isActive ? 'bg-[#2D5016]/[0.08]' : ''}`}>
+                  {item.icon}
+                </span>
+                <span className="text-[10px]">{item.label}</span>
               </Link>
             )
           })}
