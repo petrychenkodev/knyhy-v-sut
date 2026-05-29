@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { saveNote } from '@/lib/notes'
+import { Bookmark, X } from 'lucide-react'
 
 interface Props {
   children: React.ReactNode
@@ -80,11 +81,6 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     setTimeout(() => setToast(false), 2000)
   }
 
-  const handleDismiss = () => {
-    setPopup(null)
-    window.getSelection()?.removeAllRanges()
-  }
-
   return (
     <div ref={containerRef}>
       {children}
@@ -92,54 +88,31 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
       {mounted && popup && createPortal(
         <div
           style={{
-            position: 'absolute',
+            position: 'fixed',
             left: popup.x,
-            top: popup.y - 8,
+            top: popup.y,
             transform: 'translateX(-50%) translateY(-100%)',
             zIndex: 1000,
+            marginTop: '-8px',
           }}
-          className="bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2 flex items-center gap-2"
         >
-          <button
+          <div
+            className="flex items-center gap-2 bg-[#1A1A18] rounded-lg px-3 py-2 shadow-lg cursor-pointer select-none"
             onClick={handleSave}
-            className="bg-[#2D5016] text-white px-3 py-1.5 rounded text-sm whitespace-nowrap hover:bg-[#3a6b1e] transition-colors"
           >
-            📌 Зберегти в нотатки
-          </button>
-          <button
-            onClick={handleDismiss}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-lg leading-none"
-            aria-label="Закрити"
-          >
-            ✕
-          </button>
-          {/* Triangle arrow */}
-          <span
-            style={{
-              position: 'absolute',
-              bottom: -6,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 0,
-              height: 0,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderTop: '6px solid #e5e7eb',
-            }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              bottom: -5,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 0,
-              height: 0,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderTop: '6px solid white',
-            }}
-          />
+            <Bookmark size={14} strokeWidth={1.5} className="text-white/70 shrink-0" />
+            <span className="text-white text-sm font-medium whitespace-nowrap">Зберегти</span>
+            <div className="w-px h-4 bg-white/20 mx-1" />
+            <X
+              size={14}
+              className="text-white/50 hover:text-white shrink-0"
+              onClick={(e) => { e.stopPropagation(); setPopup(null) }}
+            />
+          </div>
+          {/* Triangle arrow pointing down */}
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-1.5 overflow-hidden">
+            <div className="w-3 h-3 bg-[#1A1A18] rotate-45 translate-y-[-50%]" />
+          </div>
         </div>,
         document.body
       )}

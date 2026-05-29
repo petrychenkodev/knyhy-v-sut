@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import NavbarActions from './NavbarActions'
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -14,7 +16,7 @@ export default function Navbar() {
             Книги в суть
           </Link>
 
-          {/* Desktop nav */}
+          {/* Desktop nav - center */}
           <div className="hidden md:flex items-center gap-8">
             <Link
               href="/catalog"
@@ -29,6 +31,9 @@ export default function Navbar() {
               Статті
             </Link>
           </div>
+
+          {/* Desktop nav - right */}
+          <NavbarActions />
 
           {/* Mobile hamburger */}
           <button

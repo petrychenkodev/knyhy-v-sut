@@ -10,6 +10,7 @@ import ArticleCard from '@/components/ArticleCard'
 import ArticleBookmarkButton from '@/components/ArticleBookmarkButton'
 import { ArrowLeft, Clock } from 'lucide-react'
 import TextHighlighter from '@/components/TextHighlighter'
+import NotesBanner from '@/components/NotesBanner'
 
 interface PageProps {
   params: { slug: string }
@@ -116,6 +117,7 @@ export default async function ArticlePage({ params }: PageProps) {
         </div>
 
         {/* Content */}
+        <NotesBanner />
         <TextHighlighter sourceType="article" sourceTitle={article.title_ua} sourceSlug={article.slug}>
           <div
             className="prose prose-lg max-w-none
