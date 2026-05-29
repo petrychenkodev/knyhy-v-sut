@@ -75,33 +75,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="uk">
-      <body
-        className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100dvh',
-          margin: 0,
-          padding: 0,
-          backgroundColor: '#FAFAF8',
-        }}
-      >
+      <body className={`${playfair.variable} ${dmSans.variable} font-sans antialiased bg-[#FAFAF8]`}>
         <Analytics />
-
-        {/* Scrollable content area */}
-        <div
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            WebkitOverflowScrolling: 'touch',
-          }}
-        >
-          <Navbar />
-          <main>{children}</main>
-        </div>
-
-        {/* Bottom nav — in flex flow, always anchored to bottom */}
+        <Navbar />
+        <main>{children}</main>
         <MobileBottomNav />
       </body>
     </html>

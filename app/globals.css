@@ -14,9 +14,12 @@
   }
 }
 
-html, body {
-  /* Prevent overscroll bounce from affecting fixed elements on iOS/Chrome */
-  overscroll-behavior: none;
+html {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
