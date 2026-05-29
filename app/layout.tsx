@@ -75,15 +75,36 @@ export default function RootLayout({
 }) {
   return (
     <html lang="uk">
-      <body className={`${playfair.variable} ${dmSans.variable} font-sans antialiased bg-[#FAFAF8]`}>
+      <body
+        className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}
+        style={{
+          display: 'grid',
+          gridTemplateRows: '1fr auto',
+          minHeight: '100dvh',
+          maxHeight: '100dvh',
+          overflow: 'hidden',
+          margin: 0,
+          padding: 0,
+          backgroundColor: '#FAFAF8',
+        }}
+      >
         <Analytics />
-        <Navbar />
+
+        {/* Row 1: scrollable content — Navbar is sticky inside here */}
         <main
-          className="md:pb-0"
-          style={{ paddingBottom: 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
+          id="scroll-container"
+          style={{
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+            minHeight: 0,
+          }}
         >
+          <Navbar />
           {children}
         </main>
+
+        {/* Row 2: bottom nav — sits naturally at grid bottom, no fixed needed */}
         <MobileBottomNav />
       </body>
     </html>

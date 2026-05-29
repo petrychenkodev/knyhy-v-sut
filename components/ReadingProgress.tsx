@@ -6,21 +6,20 @@ export default function ReadingProgress() {
   const [width, setWidth] = useState(0)
 
   useEffect(() => {
+    // In CSS Grid layout, page scrolls inside <main id="scroll-container">,
+    // not on window — so we listen to the container, not window.scroll
+    const container = document.getElementById('scroll-container') ?? document.documentElement
+
     const updateProgress = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-      const docHeight =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight
-
+      const scrollTop = container.scrollTop
+      const docHeight = container.scrollHeight - container.clientHeight
       if (docHeight <= 0) return
-
-      const progress = (scrollTop / docHeight) * 100
-      setWidth(Math.min(100, Math.max(0, progress)))
+      setWidth(Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)))
     }
 
-    window.addEventListener('scroll', updateProgress, { passive: true })
+    container.addEventListener('scroll', updateProgress, { passive: true })
     updateProgress()
-    return () => window.removeEventListener('scroll', updateProgress)
+    return () => container.removeEventListener('scroll', updateProgress)
   }, [])
 
   return (
@@ -35,9 +34,6 @@ export default function ReadingProgress() {
         zIndex: 9999,
         transition: 'width 0.1s linear',
         pointerEvents: 'none',
-        transform: 'translateZ(0)',
-        WebkitTransform: 'translateZ(0)',
-        willChange: 'width',
       }}
     />
   )
