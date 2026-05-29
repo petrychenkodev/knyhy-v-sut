@@ -16,45 +16,39 @@ function slugify(text: string): string {
 export async function createBook(formData: FormData) {
   const supabase = createAdminClient()
 
-  const titleUa = (formData.get('title_ua') as string)?.trim()
-  const titleEn = (formData.get('title_en') as string)?.trim()
-  const author   = (formData.get('author')   as string)?.trim()
+  const titleUa  = (formData.get('title_ua')  as string)?.trim()
+  const author   = (formData.get('author')    as string)?.trim()
   const category = (formData.get('category') as string)?.trim()
-  const slugInput = (formData.get('slug')    as string)?.trim()
+  const slugInput = (formData.get('slug')     as string)?.trim()
 
-  if (!titleUa) throw new Error('title_ua is required')
-  if (!titleEn) throw new Error('title_en is required')
-  if (!author)  throw new Error('author is required')
+  if (!titleUa)  throw new Error('title_ua is required')
+  if (!author)   throw new Error('author is required')
   if (!category) throw new Error('Category is required — please select one')
 
-  const insightsUa = (formData.getAll('key_insights_ua') as string[]).filter((s) => s.trim())
-  const insightsEn = (formData.getAll('key_insights_en') as string[]).filter((s) => s.trim())
-  const practicalUa = (formData.getAll('practical_ua') as string[]).filter((s) => s.trim())
-  const practicalEn = (formData.getAll('practical_en') as string[]).filter((s) => s.trim())
-  const quotesUa = (formData.getAll('quotes_ua') as string[]).filter((s) => s.trim())
-  const quotesEn = (formData.getAll('quotes_en') as string[]).filter((s) => s.trim())
+  const insightsUa  = (formData.getAll('key_insights_ua') as string[]).filter((s) => s.trim())
+  const practicalUa = (formData.getAll('practical_ua')    as string[]).filter((s) => s.trim())
+  const quotesUa    = (formData.getAll('quotes_ua')       as string[]).filter((s) => s.trim())
   const reflectionUa = (formData.getAll('reflection_ua') as string[]).filter((s) => s.trim())
-  const reflectionEn = (formData.getAll('reflection_en') as string[]).filter((s) => s.trim())
-  const published = formData.get('published') === 'true'
+  const published   = formData.get('published') === 'true'
 
   const { error } = await supabase.from('books').insert({
     title_ua: titleUa,
-    title_en: titleEn,
+    title_en: titleUa,
     author,
     category,
     cover_url: (formData.get('cover_url') as string) || null,
-    slug: slugInput || slugify(titleEn),
+    slug: slugInput || slugify(titleUa),
     read_time_min: parseInt(formData.get('read_time_min') as string) || 10,
     summary_ua: formData.get('summary_ua') as string,
-    summary_en: formData.get('summary_en') as string,
+    summary_en: '',
     key_insights_ua: insightsUa,
-    key_insights_en: insightsEn,
+    key_insights_en: [],
     practical_ua: practicalUa,
-    practical_en: practicalEn,
+    practical_en: [],
     quotes_ua: quotesUa,
-    quotes_en: quotesEn,
+    quotes_en: [],
     reflection_ua: reflectionUa,
-    reflection_en: reflectionEn,
+    reflection_en: [],
     published,
   })
 
@@ -67,47 +61,41 @@ export async function createBook(formData: FormData) {
 export async function updateBook(id: string, formData: FormData) {
   const supabase = createAdminClient()
 
-  const titleUa = (formData.get('title_ua') as string)?.trim()
-  const titleEn = (formData.get('title_en') as string)?.trim()
-  const author   = (formData.get('author')   as string)?.trim()
+  const titleUa  = (formData.get('title_ua')  as string)?.trim()
+  const author   = (formData.get('author')    as string)?.trim()
   const category = (formData.get('category') as string)?.trim()
-  const slugInput = (formData.get('slug')    as string)?.trim()
+  const slugInput = (formData.get('slug')     as string)?.trim()
 
-  if (!titleUa) throw new Error('title_ua is required')
-  if (!titleEn) throw new Error('title_en is required')
-  if (!author)  throw new Error('author is required')
+  if (!titleUa)  throw new Error('title_ua is required')
+  if (!author)   throw new Error('author is required')
   if (!category) throw new Error('Category is required — please select one')
 
-  const insightsUa = (formData.getAll('key_insights_ua') as string[]).filter((s) => s.trim())
-  const insightsEn = (formData.getAll('key_insights_en') as string[]).filter((s) => s.trim())
-  const practicalUa = (formData.getAll('practical_ua') as string[]).filter((s) => s.trim())
-  const practicalEn = (formData.getAll('practical_en') as string[]).filter((s) => s.trim())
-  const quotesUa = (formData.getAll('quotes_ua') as string[]).filter((s) => s.trim())
-  const quotesEn = (formData.getAll('quotes_en') as string[]).filter((s) => s.trim())
+  const insightsUa  = (formData.getAll('key_insights_ua') as string[]).filter((s) => s.trim())
+  const practicalUa = (formData.getAll('practical_ua')    as string[]).filter((s) => s.trim())
+  const quotesUa    = (formData.getAll('quotes_ua')       as string[]).filter((s) => s.trim())
   const reflectionUa = (formData.getAll('reflection_ua') as string[]).filter((s) => s.trim())
-  const reflectionEn = (formData.getAll('reflection_en') as string[]).filter((s) => s.trim())
-  const published = formData.get('published') === 'true'
+  const published   = formData.get('published') === 'true'
 
   const { error } = await supabase
     .from('books')
     .update({
       title_ua: titleUa,
-      title_en: titleEn,
+      title_en: titleUa,
       author,
       category,
       cover_url: (formData.get('cover_url') as string) || null,
-      slug: slugInput || slugify(titleEn),
+      slug: slugInput || slugify(titleUa),
       read_time_min: parseInt(formData.get('read_time_min') as string) || 10,
       summary_ua: formData.get('summary_ua') as string,
-      summary_en: formData.get('summary_en') as string,
+      summary_en: '',
       key_insights_ua: insightsUa,
-      key_insights_en: insightsEn,
+      key_insights_en: [],
       practical_ua: practicalUa,
-      practical_en: practicalEn,
+      practical_en: [],
       quotes_ua: quotesUa,
-      quotes_en: quotesEn,
+      quotes_en: [],
       reflection_ua: reflectionUa,
-      reflection_en: reflectionEn,
+      reflection_en: [],
       published,
     })
     .eq('id', id)
