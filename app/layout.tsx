@@ -78,8 +78,13 @@ export default function RootLayout({
       <body className={`${playfair.variable} ${dmSans.variable} font-sans antialiased`}>
         <div className="min-h-screen bg-[#FAFAF8]">
           <Navbar />
-          <main className="pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+          <main>
             {children}
+            {/* Spacer so content isn't hidden behind mobile bottom nav */}
+            <div
+              className="md:hidden"
+              style={{ height: 'calc(56px + env(safe-area-inset-bottom))' }}
+            />
           </main>
           <MobileBottomNav />
         </div>

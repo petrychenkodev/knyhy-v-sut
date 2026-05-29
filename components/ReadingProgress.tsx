@@ -7,11 +7,14 @@ export default function ReadingProgress() {
 
   useEffect(() => {
     const updateProgress = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
       const docHeight =
         document.documentElement.scrollHeight -
         document.documentElement.clientHeight
-      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+
+      if (docHeight <= 0) return
+
+      const progress = (scrollTop / docHeight) * 100
       setWidth(Math.min(100, Math.max(0, progress)))
     }
 
@@ -30,8 +33,11 @@ export default function ReadingProgress() {
         width: `${width}%`,
         backgroundColor: '#2D5016',
         zIndex: 9999,
-        transition: 'width 0.15s ease',
+        transition: 'width 0.1s linear',
         pointerEvents: 'none',
+        transform: 'translateZ(0)',
+        WebkitTransform: 'translateZ(0)',
+        willChange: 'width',
       }}
     />
   )

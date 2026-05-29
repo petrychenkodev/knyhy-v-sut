@@ -16,16 +16,31 @@ export default function MobileBottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100 shadow-lg"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      <div className="flex h-16 w-full">
+    <nav
+      className="md:hidden"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        backgroundColor: 'white',
+        borderTop: '1px solid #f3f4f6',
+        boxShadow: '0 -1px 8px rgba(0,0,0,0.06)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        transform: 'translateZ(0)',
+        WebkitTransform: 'translateZ(0)',
+        willChange: 'transform',
+      }}
+    >
+      <div style={{ display: 'flex', height: '56px', alignItems: 'stretch' }}>
         {navItems.map((item) => {
           const isActive = pathname === item.href
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors ${
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
                 isActive ? 'text-[#2D5016]' : 'text-gray-500 hover:text-gray-700'
               }`}
             >

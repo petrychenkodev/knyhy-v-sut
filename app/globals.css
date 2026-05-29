@@ -14,6 +14,12 @@
   }
 }
 
+html, body {
+  /* Prevent overscroll bounce from affecting fixed elements on iOS/Chrome */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
