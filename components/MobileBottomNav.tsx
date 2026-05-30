@@ -1,10 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { BookOpen, Newspaper, BookMarked, FileText, User } from 'lucide-react'
-import { getNotes } from '@/lib/notes'
 
 const navItems = [
   { href: '/catalog',  Icon: BookOpen,   label: 'Книги'     },
@@ -16,11 +14,6 @@ const navItems = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname()
-  const [notesCount, setNotesCount] = useState(0)
-
-  useEffect(() => {
-    getNotes().then(notes => setNotesCount(notes.length))
-  }, [])
 
   const isActive = (href: string) => {
     if (href === '/catalog')  return pathname === '/catalog' || pathname.startsWith('/books/')
@@ -43,7 +36,6 @@ export default function MobileBottomNav() {
       <div style={{ display: 'flex', height: '56px' }}>
         {navItems.map(({ href, Icon, label }) => {
           const active = isActive(href)
-          const showBadge = href === '/notes' && notesCount > 0
           return (
             <Link
               key={href}
@@ -61,21 +53,7 @@ export default function MobileBottomNav() {
                 fontWeight: 500,
               }}
             >
-              <span style={{ position: 'relative', display: 'inline-flex' }}>
-                <Icon size={20} strokeWidth={1.5} />
-                {showBadge && (
-                  <span style={{
-                    position: 'absolute', top: '-4px', right: '-6px',
-                    backgroundColor: '#2D5016', color: 'white',
-                    fontSize: '9px', fontWeight: 700,
-                    borderRadius: '999px', minWidth: '14px', height: '14px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    padding: '0 3px', lineHeight: 1,
-                  }}>
-                    {notesCount > 9 ? '9+' : notesCount}
-                  </span>
-                )}
-              </span>
+              <Icon size={20} strokeWidth={1.5} />
               <span>{label}</span>
             </Link>
           )

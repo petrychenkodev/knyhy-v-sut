@@ -51,11 +51,6 @@ export default function NavbarActions() {
           >
             {item.icon}
             <span>{item.label}</span>
-            {item.count > 0 && (
-              <span className="absolute -top-1.5 -right-2 bg-[#2D5016] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
-                {item.count > 9 ? '9+' : item.count}
-              </span>
-            )}
           </Link>
         )
       })}
