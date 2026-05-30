@@ -16,9 +16,12 @@ export const getNotes = (): Note[] => {
 }
 
 export const saveNote = (note: Omit<Note, 'id' | 'createdAt'>): Note => {
+  console.log('saveNote called with:', note)
   const notes = getNotes()
+  console.log('existing notes count:', notes.length)
   const newNote: Note = { ...note, id: Date.now().toString(), createdAt: new Date().toISOString() }
   localStorage.setItem('user_notes', JSON.stringify([newNote, ...notes]))
+  console.log('saved, total notes now:', notes.length + 1)
   return newNote
 }
 

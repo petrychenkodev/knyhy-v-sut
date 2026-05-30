@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { saveNote } from '@/lib/notes'
+import { saveNote, getNotes } from '@/lib/notes'
 import { Bookmark, X } from 'lucide-react'
 
 interface Props {
@@ -17,14 +17,16 @@ type Direction = 'up' | 'down' | 'none'
 interface PopupState {
   x: number
   y: number
-  text: string
   direction: Direction
-  range: Range
 }
 
 export default function TextHighlighter({ children, sourceType, sourceTitle, sourceSlug }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const selectedTextRef = useRef('')
+  const savedRangeRef = useRef<Range | null>(null)
+
   const [popup, setPopup] = useState<PopupState | null>(null)
+  const [displayText, setDisplayText] = useState('')
   const [toast, setToast] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -41,6 +43,11 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     const wrapper = wrapperRef.current
     if (!wrapper) return
     if (!wrapper.contains(range.commonAncestorContainer)) { setPopup(null); return }
+
+    // Store text + range in refs so handleSave always reads the latest value
+    selectedTextRef.current = text
+    savedRangeRef.current = range.cloneRange()
+    setDisplayText(text)
 
     const rect = range.getBoundingClientRect()
     const isMobile = window.innerWidth < 768
@@ -59,7 +66,6 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     if (isMobile) {
       const spaceBelow = window.innerHeight - rect.bottom
       const spaceAbove = rect.top
-
       if (spaceBelow >= popupHeight + margin) {
         y = rect.bottom + margin
         direction = 'down'
@@ -75,7 +81,7 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
       direction = 'up'
     }
 
-    setPopup({ x, y, text, direction, range: range.cloneRange() })
+    setPopup({ x, y, direction })
   }, [])
 
   useEffect(() => {
@@ -94,25 +100,59 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     return () => scrollEl.removeEventListener('scroll', hide)
   }, [])
 
-  const handleSave = () => {
-    if (!popup) return
-    saveNote({ text: popup.text, comment: '', sourceType, sourceTitle, sourceSlug })
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    console.log('handleSave called')
+
+    const textToSave = selectedTextRef.current || displayText
+    console.log('textToSave:', textToSave)
+    console.log('sourceTitle:', sourceTitle)
+    console.log('sourceSlug:', sourceSlug)
+
+    if (!textToSave) {
+      console.log('No text — aborting')
+      return
+    }
 
     try {
-      const highlightSpan = document.createElement('span')
-      highlightSpan.className = 'saved-highlight'
-      highlightSpan.style.backgroundColor = '#FFF9C4'
-      highlightSpan.style.borderRadius = '2px'
-      highlightSpan.style.padding = '0 1px'
-      popup.range.surroundContents(highlightSpan)
+      const note = { text: textToSave, comment: '', sourceType, sourceTitle, sourceSlug }
+      console.log('Saving note:', note)
+      saveNote(note)
+      console.log('Saved. All notes:', getNotes().length)
+    } catch (err) {
+      console.error('saveNote error:', err)
+    }
+
+    // Visual highlight
+    try {
+      const range = savedRangeRef.current
+      if (range) {
+        const span = document.createElement('span')
+        span.className = 'saved-highlight'
+        span.style.backgroundColor = '#FFF9C4'
+        span.style.borderRadius = '2px'
+        span.style.padding = '0 1px'
+        range.surroundContents(span)
+      }
     } catch {
-      // surroundContents fails across element boundaries — ignore
+      // spans across element boundaries — ignore
     }
 
     window.getSelection()?.removeAllRanges()
+    selectedTextRef.current = ''
+    savedRangeRef.current = null
     setPopup(null)
+    setDisplayText('')
     setToast(true)
-    setTimeout(() => setToast(false), 2000)
+    setTimeout(() => setToast(false), 2500)
+  }
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setPopup(null)
   }
 
   const getTransform = (direction: Direction) => {
@@ -157,8 +197,10 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
         }}>
           {popup.direction === 'down' && arrowDown}
           <div
-            className="flex items-center gap-2 bg-[#1A1A18] rounded-lg px-3 py-2 shadow-lg cursor-pointer select-none"
+            className="flex items-center gap-2 bg-[#1A1A18] rounded-lg px-3 py-2 shadow-lg select-none"
+            style={{ cursor: 'pointer' }}
             onClick={handleSave}
+            onMouseDown={e => e.preventDefault()} // prevent selection loss on click
           >
             <Bookmark size={14} strokeWidth={1.5} className="text-white/70 shrink-0" />
             <span className="text-white text-sm font-medium whitespace-nowrap">Зберегти</span>
@@ -166,7 +208,7 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
             <X
               size={14}
               className="text-white/50 hover:text-white shrink-0"
-              onClick={(e) => { e.stopPropagation(); setPopup(null) }}
+              onClick={handleDismiss}
             />
           </div>
           {popup.direction === 'up' && arrowUp}
@@ -175,8 +217,21 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
       )}
 
       {mounted && toast && createPortal(
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-[#2D5016] text-white px-4 py-2 rounded-lg shadow-lg z-[9999] text-sm pointer-events-none">
-          Збережено ✓
+        <div style={{
+          position: 'fixed',
+          bottom: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: '#2D5016',
+          color: 'white',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          zIndex: 9999,
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap',
+        }}>
+          Збережено в нотатки ✓
         </div>,
         document.body
       )}
