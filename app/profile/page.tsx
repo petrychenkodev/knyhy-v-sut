@@ -7,6 +7,7 @@ import { getFavorites, getSavedArticles, getHistory, getReadBooks, getFirstVisit
 import BookCard from '@/components/BookCard'
 import { BookMarked, CheckCircle, Eye, Clock, User, FileText } from 'lucide-react'
 import { getNotes } from '@/lib/notes'
+import ProfileAuthSection from '@/components/ProfileAuthSection'
 
 function getMotivation(count: number): string {
   if (count <= 3) return 'Гарний початок!'
@@ -76,6 +77,7 @@ export default function ProfilePage() {
 
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-10">
+        <ProfileAuthSection />
         <div className="w-20 h-20 rounded-full bg-[#2D5016] flex items-center justify-center mb-4 shadow-md">
           <User size={36} strokeWidth={1.5} className="text-white" />
         </div>
