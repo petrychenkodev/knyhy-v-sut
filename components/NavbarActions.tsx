@@ -16,8 +16,8 @@ export default function NavbarActions() {
   const [user, setUser] = useState<SupabaseUser | null>(null)
 
   useEffect(() => {
-    setSavedCount(getFavorites().length + getSavedArticles().length)
-    setNotesCount(getNotes().length)
+    getFavorites().then(favs => setSavedCount(favs.length + getSavedArticles().length))
+    getNotes().then(notes => setNotesCount(notes.length))
 
     const supabase = createClient()
     supabase.auth.getSession().then(({ data: { session } }) => {

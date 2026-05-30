@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { saveNote, getNotes } from '@/lib/notes'
+import { saveNote } from '@/lib/notes'
 import { Bookmark, X } from 'lucide-react'
 
 interface Props {
@@ -100,7 +100,7 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     return () => scrollEl.removeEventListener('scroll', hide)
   }, [])
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -119,8 +119,8 @@ export default function TextHighlighter({ children, sourceType, sourceTitle, sou
     try {
       const note = { text: textToSave, comment: '', sourceType, sourceTitle, sourceSlug }
       console.log('Saving note:', note)
-      saveNote(note)
-      console.log('Saved. All notes:', getNotes().length)
+      await saveNote(note)
+      console.log('Note saved')
     } catch (err) {
       console.error('saveNote error:', err)
     }

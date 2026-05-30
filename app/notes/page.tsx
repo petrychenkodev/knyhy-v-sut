@@ -43,18 +43,18 @@ export default function NotesPage() {
 
   useEffect(() => {
     setMounted(true)
-    setNotes(getNotes())
+    getNotes().then(data => { setNotes(data) })
   }, [])
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Видалити цю нотатку?')) return
-    deleteNote(id)
-    setNotes(getNotes())
+    await deleteNote(id)
+    getNotes().then(setNotes)
   }
 
-  const handleCommentBlur = (id: string, comment: string) => {
-    updateNoteComment(id, comment)
-    setNotes(getNotes())
+  const handleCommentBlur = async (id: string, comment: string) => {
+    await updateNoteComment(id, comment)
+    getNotes().then(setNotes)
   }
 
   const filtered = filter === 'all' ? notes : notes.filter(n => n.sourceType === filter)

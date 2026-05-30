@@ -19,7 +19,7 @@ export default function MobileBottomNav() {
   const [notesCount, setNotesCount] = useState(0)
 
   useEffect(() => {
-    setNotesCount(getNotes().length)
+    getNotes().then(notes => setNotesCount(notes.length))
   }, [])
 
   const isActive = (href: string) => {

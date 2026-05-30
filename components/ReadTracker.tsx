@@ -14,14 +14,13 @@ export default function ReadTracker({ book }: Props) {
 
   useEffect(() => {
     addToHistory(book)
-    setRead(isRead(book.id))
+    isRead(book.id).then(setRead)
 
     const handleScroll = () => {
       const scrolled = window.scrollY + window.innerHeight
       const total = document.documentElement.scrollHeight
       if (scrolled / total >= 0.8) {
-        markAsRead(book.id)
-        setRead(true)
+        markAsRead(book.id).then(() => setRead(true))
       }
     }
 

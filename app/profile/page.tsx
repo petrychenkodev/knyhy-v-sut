@@ -31,7 +31,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setMounted(true)
-    setFavorites(getFavorites())
+    getFavorites().then(setFavorites)
     setSavedArticlesCount(getSavedArticles().length)
     setHistory(getHistory())
     setReadIds(getReadBooks())
@@ -39,7 +39,7 @@ export default function ProfilePage() {
     const savedGoal = parseInt(localStorage.getItem('reading_goal') || '12', 10)
     setGoal(savedGoal)
     setGoalInput(String(savedGoal))
-    setNotesCount(getNotes().length)
+    getNotes().then(notes => setNotesCount(notes.length))
   }, [])
 
   const saveGoal = () => {

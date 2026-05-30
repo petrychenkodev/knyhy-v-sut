@@ -18,8 +18,12 @@ export default function BookCard({ book }: BookCardProps) {
   const categoryLabel = categoryLabels[book.category] ?? book.category
   const [imgError, setImgError] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [read, setRead] = useState(false)
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    isRead(book.id).then(setRead)
+  }, [book.id])
 
   return (
     <Link href={`/books/${book.slug}`} className="group block">
@@ -54,7 +58,7 @@ export default function BookCard({ book }: BookCardProps) {
           </div>
 
           {/* Read badge */}
-          {mounted && isRead(book.id) && (
+          {mounted && read && (
             <div className="absolute bottom-2 left-2 z-20 flex items-center gap-1 bg-[#2D5016] text-white text-xs px-2 py-1 rounded-full">
               <CheckCircle size={12} strokeWidth={1.5} />
               <span>Прочитано</span>

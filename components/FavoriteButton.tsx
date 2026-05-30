@@ -17,13 +17,13 @@ export default function FavoriteButton({ book, className = '' }: FavoriteButtonP
 
   useEffect(() => {
     setMounted(true)
-    setSaved(isFavorite(book.id))
+    isFavorite(book.id).then(setSaved)
   }, [book.id])
 
-  function handleToggle(e: React.MouseEvent) {
+  async function handleToggle(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    const nowSaved = toggleFavorite(book)
+    const nowSaved = await toggleFavorite(book)
     setSaved(nowSaved)
     setToast(nowSaved ? 'Збережено' : 'Видалено зі збережених')
     setTimeout(() => setToast(null), 2000)

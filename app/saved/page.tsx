@@ -51,7 +51,7 @@ export default function SavedPage() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setBooks(getFavorites())
+    getFavorites().then(setBooks)
     setArticles(getSavedArticles())
     setMounted(true)
   }, [])
