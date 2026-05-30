@@ -7,13 +7,19 @@ export const signInWithEmail = async (email: string, password: string) => {
 
 export const signUpWithEmail = async (email: string, password: string, name?: string) => {
   const supabase = createClient()
-  return await supabase.auth.signUp({
+
+  console.log('Attempting signup with:', { email, hasPassword: !!password, name })
+
+  const result = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: name || '' },
     },
   })
+
+  console.log('Signup result:', result)
+  return result
 }
 
 export const signOut = async () => {

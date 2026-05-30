@@ -15,22 +15,28 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password.length < 6) { setError('Пароль має бути мінімум 6 символів'); return }
-    setLoading(true)
     setError('')
-    const { error } = await signUpWithEmail(email, password, name || undefined)
-    if (error) {
-      if (error.message.includes('already registered') || error.message.includes('already been registered')) {
-        setError('Користувач з цим email вже існує')
-      } else if (error.message.includes('Password should be at least')) {
-        setError('Пароль має бути мінімум 6 символів')
-      } else {
-        setError('Помилка реєстрації. Спробуйте ще раз.')
+    setLoading(true)
+
+    try {
+      const { data, error } = await signUpWithEmail(email, password, name || undefined)
+
+      if (error) {
+        console.error('Signup error full:', error)
+        console.error('Error message:', error.message)
+        console.error('Error status:', error.status)
+        setError(`Помилка: ${error.message}`)
+        setLoading(false)
+        return
       }
-      setLoading(false)
-    } else {
+
+      console.log('Signup success:', data)
       router.push('/')
       router.refresh()
+    } catch (err) {
+      console.error('Caught error:', err)
+      setError(`Caught: ${err}`)
+      setLoading(false)
     }
   }
 
