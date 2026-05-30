@@ -21,13 +21,13 @@ export default function ArticleCard({ article }: ArticleCardProps) {
   })
 
   useEffect(() => {
-    setSaved(isArticleSaved(article.id))
+    isArticleSaved(article.id).then(setSaved)
   }, [article.id])
 
-  const handleBookmark = (e: React.MouseEvent) => {
+  const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const next = toggleArticle(article)
+    const next = await toggleArticle(article)
     setSaved(next)
   }
 

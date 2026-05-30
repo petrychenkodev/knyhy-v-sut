@@ -11,13 +11,13 @@ export default function ArticleBookmarkButton({ article }: { article: Article })
 
   useEffect(() => {
     setMounted(true)
-    setSaved(isArticleSaved(article.id))
+    isArticleSaved(article.id).then(setSaved)
   }, [article.id])
 
   if (!mounted) return null
 
-  const handleToggle = () => {
-    const next = toggleArticle(article)
+  const handleToggle = async () => {
+    const next = await toggleArticle(article)
     setSaved(next)
   }
 

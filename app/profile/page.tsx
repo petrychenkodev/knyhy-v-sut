@@ -32,7 +32,7 @@ export default function ProfilePage() {
   useEffect(() => {
     setMounted(true)
     getFavorites().then(setFavorites)
-    setSavedArticlesCount(getSavedArticles().length)
+    getSavedArticles().then(arts => setSavedArticlesCount(arts.length))
     setHistory(getHistory())
     setReadIds(getReadBooks())
     setFirstVisit(getFirstVisit())

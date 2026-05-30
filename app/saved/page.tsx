@@ -11,9 +11,9 @@ import { BookMarked, Newspaper, ArrowLeft, Bookmark } from 'lucide-react'
 function ArticleRow({ article, onRemove }: { article: Article; onRemove: (id: string) => void }) {
   const [imgError, setImgError] = useState(false)
 
-  const handleRemove = (e: React.MouseEvent) => {
+  const handleRemove = async (e: React.MouseEvent) => {
     e.preventDefault()
-    toggleArticle(article)
+    await toggleArticle(article)
     onRemove(article.id)
   }
 
@@ -51,9 +51,11 @@ export default function SavedPage() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    getFavorites().then(setBooks)
-    setArticles(getSavedArticles())
-    setMounted(true)
+    Promise.all([getFavorites(), getSavedArticles()]).then(([b, a]) => {
+      setBooks(b)
+      setArticles(a)
+      setMounted(true)
+    })
   }, [])
 
   if (!mounted) return null

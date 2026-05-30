@@ -155,34 +155,72 @@ export const getFirstVisit = (): string => {
   return now
 }
 
-// ── Sync Article favorites (localStorage only) ────────────────────────────────
+// ── Async Article favorites (Supabase-first) ─────────────────────────────────
 
-export const getSavedArticles = (): Article[] => {
+const getLocalArticles = (): Article[] => {
   if (typeof window === 'undefined') return []
-  try {
-    return JSON.parse(localStorage.getItem('saved_articles') || '[]')
-  } catch { return [] }
+  try { return JSON.parse(localStorage.getItem('saved_articles') || '[]') }
+  catch { return [] }
 }
 
-export const saveArticle = (article: Article): void => {
-  const saved = getSavedArticles().filter(a => a.id !== article.id)
+export async function getSavedArticles(): Promise<Article[]> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    const { data, error } = await supabase
+      .from('saved_articles')
+      .select('articles(*)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+    if (error) { console.error('getSavedArticles error:', error); return getLocalArticles() }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data || []).map((d: any) => d.articles as Article | null).filter(Boolean) as Article[]
+  }
+  return getLocalArticles()
+}
+
+export async function isArticleSaved(id: string): Promise<boolean> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    const { data } = await supabase
+      .from('saved_articles')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('article_id', id)
+      .maybeSingle()
+    return !!data
+  }
+  return getLocalArticles().some(a => a.id === id)
+}
+
+export async function saveArticle(article: Article): Promise<void> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    await supabase.from('saved_articles').upsert({ user_id: user.id, article_id: article.id })
+    return
+  }
+  const saved = getLocalArticles().filter(a => a.id !== article.id)
   localStorage.setItem('saved_articles', JSON.stringify([article, ...saved]))
 }
 
-export const removeArticle = (id: string): void => {
-  localStorage.setItem('saved_articles', JSON.stringify(getSavedArticles().filter(a => a.id !== id)))
-}
+export async function removeArticle(id: string): Promise<void> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-export const isArticleSaved = (id: string): boolean => {
-  return getSavedArticles().some(a => a.id === id)
-}
-
-export const toggleArticle = (article: Article): boolean => {
-  if (isArticleSaved(article.id)) {
-    removeArticle(article.id)
-    return false
-  } else {
-    saveArticle(article)
-    return true
+  if (user) {
+    await supabase.from('saved_articles').delete().eq('user_id', user.id).eq('article_id', id)
+    return
   }
+  localStorage.setItem('saved_articles', JSON.stringify(getLocalArticles().filter(a => a.id !== id)))
+}
+
+export async function toggleArticle(article: Article): Promise<boolean> {
+  const saved = await isArticleSaved(article.id)
+  if (saved) { await removeArticle(article.id); return false }
+  else { await saveArticle(article); return true }
 }
